@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RevendaPro</title>
+<style>
+  :root {
+    --slate-950:#020617; --slate-900:#0f172a; --slate-800:#1e293b; --slate-700:#334155;
+    --slate-500:#64748b; --slate-400:#94a3b8; --slate-100:#f1f5f9; --slate-50:#f8fafc;
+    --emerald-700:#047857; --emerald-600:#059669; --emerald-500:#10b981; --emerald-100:#d1fae5; --emerald-50:#ecfdf5;
+    --rose-700:#be123c; --rose-600:#e11d48; --rose-100:#ffe4e6; --rose-50:#fff1f2;
+    --amber-800:#92400e; --amber-500:#f59e0b; --amber-200:#fde68a; --amber-50:#fffbeb;
+    --white:#ffffff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin:0; background:var(--slate-50); color:var(--slate-900);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .hidden { display:none !important; }
+  header {
+    position:sticky; top:0; z-index:40; width:100%; border-bottom:1px solid var(--slate-100);
+    background:rgba(255,255,255,0.9); backdrop-filter:blur(8px);
+  }
+  .header-inner { margin:0 auto; max-width:1200px; height:64px; display:flex; align-items:center; justify-content:space-between; padding:0 24px; }
+  .brand { display:flex; align-items:center; gap:8px; }
+  .brand-badge { height:24px; width:24px; border-radius:6px; background:var(--slate-900); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; }
+  .brand-name { font-size:18px; font-weight:600; letter-spacing:-0.01em; }
+  nav { display:flex; gap:4px; flex-wrap:wrap; }
+  nav button {
+    border:none; border-radius:999px; padding:7px 16px; font-size:13px; font-weight:600;
+    background:transparent; color:var(--slate-500); cursor:pointer; transition:all .15s; text-transform:capitalize;
+  }
+  nav button:hover { background:var(--slate-100); color:var(--slate-900); }
+  nav button.active { background:var(--slate-900); color:#fff; }
+  main { margin:0 auto; max-width:1200px; padding:28px 24px 60px; }
+  .page-head { display:flex; flex-direction:column; gap:4px; margin-bottom:24px; }
+  .page-head .eyebrow { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--slate-400); }
+  .page-head h1 { font-size:26px; font-weight:700; letter-spacing:-0.02em; margin:0; color:var(--slate-950); }
+  .page-head p { font-size:14px; color:var(--slate-500); margin:0; }
+  .row-between { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+  .btn-primary {
+    border:none; border-radius:12px; background:var(--slate-900); color:#fff; padding:10px 18px;
+    font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 1px 2px rgba(0,0,0,.05);
+  }
+  .btn-primary:hover { background:var(--slate-800); }
+  .btn-primary:disabled { opacity:.4; cursor:not-allowed; }
+  .btn-secondary {
+    border:none; border-radius:12px; background:var(--slate-100); color:var(--slate-700); padding:10px 18px;
+    font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .card { border-radius:16px; border:1px solid var(--slate-100); background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.03); }
+  .metrics-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:28px; }
+  @media (min-width:768px){ .metrics-grid{ grid-template-columns:repeat(4,1fr);} }
+  .metric { padding:18px; }
+  .metric .label { font-size:12px; font-weight:500; color:var(--slate-400); margin:0 0 4px; }
+  .metric .value { font-size:22px; font-weight:700; color:var(--slate-900); margin:0; }
+  .metric.positive .value { color:var(--emerald-600); }
+  .metric.negative .value { color:var(--rose-600); }
+  .metric.highlight { border-color:var(--emerald-100); }
+  .metric.highlight .label { color:rgba(4,120,87,.8); }
+  .lists-grid { display:grid; grid-template-columns:1fr; gap:20px; }
+  @media (min-width:900px){ .lists-grid{ grid-template-columns:repeat(3,1fr);} }
+  .list-card { padding:18px; }
+  .list-card h3 { font-size:14px; font-weight:600; margin:0 0 10px; }
+  .list-row { display:flex; justify-content:space-between; padding:9px 0; font-size:12px; border-top:1px solid var(--slate-100); }
+  .list-row:first-child { border-top:none; }
+  .list-row .name { font-weight:600; color:var(--slate-800); }
+  .list-row .val { font-weight:600; color:var(--slate-400); }
+  .list-row .val.green { color:var(--emerald-600); }
+  .empty-note { font-size:12px; color:var(--slate-400); padding:10px 0; }
+  .alert-box {
+    display:flex; align-items:flex-start; gap:10px; border-radius:16px; border:1px solid var(--amber-200);
+    background:var(--amber-50); padding:14px 16px; margin-bottom:24px; font-size:12px; color:var(--amber-800);
+  }
+  table { width:100%; border-collapse:collapse; text-align:left; font-size:14px; color:var(--slate-500); }
+  thead { background:rgba(248,250,252,.7); font-size:11px; font-weight:700; text-transform:uppercase; color:var(--slate-400); border-bottom:1px solid var(--slate-100); }
+  th, td { padding:14px 20px; }
+  tbody tr { border-top:1px solid var(--slate-100); }
+  tbody tr:hover { background:rgba(248,250,252,.6); }
+  .prod-cell { display:flex; align-items:center; gap:10px; font-weight:600; color:var(--slate-900); }
+  .thumb { height:34px; width:30px; border-radius:8px; object-fit:cover; border:1px solid var(--slate-100); background:var(--slate-100); }
+  .badge { display:inline-flex; align-items:center; border-radius:999px; padding:2px 10px; font-size:11px; font-weight:600; }
+  .badge.ok { background:var(--emerald-50); color:var(--emerald-700); }
+  .badge.low { background:var(--amber-50); color:var(--amber-800); }
+  .badge.out { background:var(--rose-50); color:var(--rose-700); }
+  .del-btn {
+    border:none; background:transparent; cursor:pointer; font-size:15px; padding:6px 8px; border-radius:8px;
+    color:var(--slate-400); transition:all .15s; line-height:1;
+  }
+  .del-btn:hover { background:var(--rose-50); color:var(--rose-600); }
+  .list-entry { padding:16px 20px; display:flex; justify-content:space-between; align-items:center; font-size:14px; border-top:1px solid var(--slate-100); }
+  .list-entry:first-child { border-top:none; }
+  .list-entry:hover { background:rgba(248,250,252,.6); }
+  .list-entry .title { font-weight:700; color:var(--slate-900); margin:0; }
+  .list-entry .sub { font-size:11px; color:var(--slate-400); margin:2px 0 0; }
+  .list-entry .amount { font-weight:700; color:var(--slate-900); margin:0; text-align:right; }
+  .list-entry .amount-sub { font-size:11px; color:var(--slate-400); margin:2px 0 0; text-align:right; }
+  .list-entry .amount-sub.green { color:var(--emerald-600); font-weight:600; }
+  .modal-overlay {
+    position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center;
+    background:rgba(2,6,23,.4); backdrop-filter:blur(3px); padding:16px;
+  }
+  .modal { width:100%; max-width:420px; border-radius:16px; background:#fff; padding:24px; box-shadow:0 20px 40px rgba(0,0,0,.15); border:1px solid var(--slate-100); }
+  .modal h3 { font-size:17px; font-weight:700; color:var(--slate-950); margin:0 0 16px; }
+  .field { width:100%; padding:10px 12px; font-size:14px; border:1px solid var(--slate-100); border-radius:12px; background:var(--slate-50); margin-bottom:12px; color:var(--slate-900); }
+  .field:focus { outline:2px solid var(--slate-900); outline-offset:1px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .grid2 .field { margin-bottom:12px; }
+  .hint-box { display:flex; gap:8px; align-items:flex-start; border-radius:12px; background:var(--slate-50); border:1px solid var(--slate-100); padding:12px; font-size:11px; color:var(--slate-400); margin-bottom:12px; }
+  .margin-btn { border:1px solid var(--slate-100); background:var(--white); color:var(--slate-700); font-size:11px; font-weight:600; padding:5px 10px; border-radius:999px; cursor:pointer; transition:all .15s; }
+  .margin-btn:hover { background:var(--slate-100); }
+  .margin-btn.active { background:var(--slate-900); color:#fff; border-color:var(--slate-900); }
+  .profit-box { display:flex; justify-content:space-between; align-items:center; border-radius:12px; background:rgba(236,253,245,.5); border:1px solid var(--emerald-100); padding:14px; font-size:12px; font-weight:600; color:var(--emerald-700); margin-bottom:12px; }
+  .profit-box .amt { font-size:14px; font-weight:800; color:var(--emerald-600); }
+  .warn-text { font-size:10px; color:var(--rose-600); font-weight:700; text-align:center; margin:0 0 12px; }
+  .modal-actions { display:flex; gap:8px; }
+  .modal-actions button { flex:1; padding:11px; border-radius:12px; font-size:12px; font-weight:600; border:none; cursor:pointer; }
+  .toast {
+    position:fixed; bottom:24px; right:24px; z-index:60; background:var(--slate-950); color:#fff; font-size:13px;
+    padding:12px 16px; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,.2); display:flex; align-items:center; gap:10px;
+    max-width:320px; border:1px solid var(--slate-800);
+  }
+  .footer-note { text-align:center; font-size:11px; color:var(--slate-400); padding:24px 0 0; }
+  select.field { appearance:none; }
+
+  /* Indicador visual de margem (pílula colorida) */
+  .margin-pill { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px; font-weight:700; font-size:12px; white-space:nowrap; }
+  .margin-pill.m-green { background:var(--emerald-50); color:var(--emerald-700); }
+  .margin-pill.m-amber { background:var(--amber-50); color:var(--amber-800); }
+  .margin-pill.m-red { background:var(--rose-50); color:var(--rose-700); }
+
+  /* Melhor experiência no celular (uso com uma mão) */
+  @media (max-width:640px) {
+    .header-inner { padding:0 14px; height:58px; }
+    .brand-name { font-size:16px; }
+    nav button { padding:6px 12px; font-size:12px; }
+    main { padding:18px 14px 48px; }
+    .page-head h1 { font-size:22px; }
+    th, td { padding:10px 12px; font-size:13px; }
+    .thumb { height:28px; width:26px; }
+    /* Reduz colunas menos essenciais para um resumo mais limpo no celular */
+    table th:nth-child(3), table td:nth-child(3),
+    table th:nth-child(6), table td:nth-child(6) { display:none; }
+    .del-btn { padding:10px 12px; font-size:16px; }
+    .btn-primary, .btn-secondary { padding:12px 16px; font-size:14px; }
+    .modal { padding:18px; max-width:100%; }
+    .modal-actions button { padding:13px; }
+    .grid2 { grid-template-columns:1fr; }
+    .list-entry { padding:14px 14px; }
+    .metrics-grid { gap:10px; }
+    .metric { padding:14px; }
+    .toast { left:14px; right:14px; bottom:14px; max-width:none; }
+  }
+  /* Evita zoom automático em inputs no iOS */
+  .field { font-size:16px; }
+  @media (min-width:641px) { .field { font-size:14px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand"><div class="brand-badge">R</div><span class="brand-name">RevendaPro</span></div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <nav id="tabNav"></nav>
+      <button id="backupBtn" class="btn-secondary" style="white-space:nowrap;padding:7px 14px" onclick="openBackupModal()">⇅ Backup</button>
+    </div>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+// ==========================================
+// PERSISTÊNCIA LOCAL (localStorage do navegador)
+// ==========================================
+const STORAGE_KEY = 'revendapro_data_v1';
+
+function loadState() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    try { return JSON.parse(raw); } catch (e) { /* fallback abaixo */ }
+  }
+  return {
+    products: [],
+    purchases: [],
+    sales: []
+  };
+}
+
+let state = loadState();
+let activeTab = 'dashboard';
+
+function persist() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function fmt(n) { return 'R$ ' + (Number(n) || 0).toFixed(2); }
+function fmtPct(n) { return (Number(n) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%'; }
+
+// ==========================================
+// CÁLCULOS
+// ==========================================
+function computeMetrics() {
+  const { products, purchases, sales } = state;
+  const totalInvestimento = purchases.reduce((s, p) => s + p.custoTotal, 0);
+  const totalValorEstoque = products.reduce((s, p) => s + p.quantidade * p.custoUnitario, 0);
+  const totalFaturamento = sales.reduce((s, v) => s + v.faturamento, 0);
+  const totalLucroBruto = sales.reduce((s, v) => s + (v.faturamento - v.custoTotal), 0);
+  const totalDespesas = purchases.reduce((s, p) => s + p.frete + p.outrosCustos, 0);
+  const totalLucroLiquido = totalLucroBruto - totalDespesas;
+  const ticketMedio = sales.length > 0 ? totalFaturamento / sales.length : 0;
+  const roi = totalInvestimento > 0 ? (totalLucroLiquido / totalInvestimento) * 100 : 0;
+
+  const vendCounts = {};
+  sales.forEach(v => { vendCounts[v.produtoNome] = (vendCounts[v.produtoNome] || 0) + v.qtd; });
+  const rankVendidos = Object.entries(vendCounts).map(([nome, qtd]) => ({ nome, val: `${qtd} un vendidas`, n: qtd }))
+    .sort((a, b) => b.n - a.n).slice(0, 3);
+
+  const lucroPorProd = {};
+  sales.forEach(v => { lucroPorProd[v.produtoNome] = (lucroPorProd[v.produtoNome] || 0) + v.lucro; });
+  const rankLucrativos = Object.entries(lucroPorProd).map(([nome, l]) => ({ nome, val: fmt(l), n: l }))
+    .sort((a, b) => b.n - a.n).slice(0, 3);
+
+  const estoqueBaixo = products.filter(p => p.quantidade > 0 && p.quantidade <= 3);
+
+  return { totalInvestimento, totalValorEstoque, totalFaturamento, totalLucroBruto, totalLucroLiquido, ticketMedio, roi, rankVendidos, rankLucrativos, estoqueBaixo };
+}
+
+// ==========================================
+// RENDER: NAV
+// ==========================================
+function renderNav() {
+  const nav = document.getElementById('tabNav');
+  const tabs = ['dashboard', 'estoque', 'compras', 'vendas'];
+  nav.innerHTML = tabs.map(t => `<button data-tab="${t}" class="${t===activeTab?'active':''}">${t}</button>`).join('');
+  nav.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => { activeTab = btn.dataset.tab; render(); });
+  });
+}
+
+// ==========================================
+// RENDER: DASHBOARD
+// ==========================================
+function renderDashboard() {
+  const m = computeMetrics();
+
+  if (state.products.length === 0) {
+    return `
+      <div class="page-head">
+        <span class="eyebrow">Geral</span>
+        <h1>Painel Executivo</h1>
+        <p>Acompanhamento automatizado de desempenho do negócio.</p>
+      </div>
+      <div class="card" style="padding:40px 24px;text-align:center">
+        <p style="font-size:15px;font-weight:700;color:var(--slate-900);margin:0 0 6px">Nenhum produto cadastrado ainda</p>
+        <p style="font-size:13px;color:var(--slate-500);margin:0 0 20px">Comece cadastrando seu primeiro produto na aba Estoque, depois registre uma compra para abastecer o estoque.</p>
+        <button class="btn-primary" onclick="activeTab='estoque'; render();">Ir para Estoque</button>
+      </div>`;
+  }
+
+  let alertHtml = '';
+  if (m.estoqueBaixo.length > 0) {
+    alertHtml = `<div class="alert-box"><span>⚠️</span><div><strong>Estoque baixo:</strong> ${m.estoqueBaixo.map(p => `${p.nome} (${p.quantidade} un)`).join(', ')}</div></div>`;
+  }
+  const metricsHtml = `
+    <div class="metrics-grid">
+      <div class="card metric"><p class="label">Valor Investido</p><p class="value">${fmt(m.totalInvestimento)}</p></div>
+      <div class="card metric"><p class="label">Valor em Estoque</p><p class="value">${fmt(m.totalValorEstoque)}</p></div>
+      <div class="card metric"><p class="label">Faturamento</p><p class="value">${fmt(m.totalFaturamento)}</p></div>
+      <div class="card metric"><p class="label">Lucro Bruto</p><p class="value">${fmt(m.totalLucroBruto)}</p></div>
+      <div class="card metric highlight ${m.totalLucroLiquido>=0?'positive':'negative'}"><p class="label">Lucro Líquido</p><p class="value">${fmt(m.totalLucroLiquido)}</p></div>
+      <div class="card metric ${m.roi>=0?'positive':'negative'}"><p class="label">ROI (Retorno)</p><p class="value">${m.roi.toFixed(1)}%</p></div>
+      <div class="card metric"><p class="label">Qtd de Produtos</p><p class="value">${state.products.reduce((a,p)=>a+p.quantidade,0)} un</p></div>
+      <div class="card metric"><p class="label">Ticket Médio</p><p class="value">${fmt(m.ticketMedio)}</p></div>
+    </div>`;
+
+  const listsHtml = `
+    <div class="lists-grid">
+      <div class="card list-card">
+        <h3>Produtos Mais Vendidos</h3>
+        ${m.rankVendidos.length ? m.rankVendidos.map(r => `<div class="list-row"><span class="name">${r.nome}</span><span class="val">${r.val}</span></div>`).join('') : '<p class="empty-note">Nenhuma venda contabilizada.</p>'}
+      </div>
+      <div class="card list-card">
+        <h3>Produtos Mais Lucrativos</h3>
+        ${m.rankLucrativos.length ? m.rankLucrativos.map(r => `<div class="list-row"><span class="name">${r.nome}</span><span class="val green">${r.val}</span></div>`).join('') : '<p class="empty-note">Nenhuma margem gerada.</p>'}
+      </div>
+      <div class="card list-card">
+        <h3>Últimas Transações</h3>
+        ${state.sales.slice(0,3).length ? state.sales.slice(0,3).map(s => `<div class="list-row"><span class="name">${s.produtoNome}<br><span style="font-size:10px;color:var(--slate-400);font-weight:400">${s.cliente||'Final'}</span></span><span class="val" style="color:var(--slate-950)">${fmt(s.faturamento)}</span></div>`).join('') : '<p class="empty-note">Sem registros de saída.</p>'}
+      </div>
+    </div>`;
+
+  return `
+    <div class="page-head">
+      <span class="eyebrow">Geral</span>
+      <h1>Painel Executivo</h1>
+      <p>Acompanhamento automatizado de desempenho do negócio.</p>
+    </div>
+    ${alertHtml}
+    ${metricsHtml}
+    ${listsHtml}
+  `;
+}
+
+// ==========================================
+// RENDER: ESTOQUE
+// ==========================================
+function renderEstoque() {
+  const termo = (state.estoqueBusca || '').trim().toLowerCase();
+  const listaProdutos = termo
+    ? state.products.filter(p => p.nome.toLowerCase().includes(termo))
+    : state.products;
+
+  const rows = listaProdutos.map(p => {
+    const status = p.quantidade === 0 ? '<span class="badge out">Esgotado</span>' : p.quantidade <= 3 ? '<span class="badge low">Estoque baixo</span>' : '<span class="badge ok">Ativo</span>';
+    const lucroEsperado = p.precoSugerido - p.custoUnitario;
+    const margemEsperada = p.custoUnitario > 0 ? (lucroEsperado / p.custoUnitario) * 100 : 0;
+    const nivel = margemEsperada >= 25 ? 'm-green' : margemEsperada >= 10 ? 'm-amber' : 'm-red';
+    const icone = margemEsperada >= 25 ? '🟢' : margemEsperada >= 10 ? '🟡' : '🔴';
+    return `<tr>
+      <td><div class="prod-cell"><div class="thumb"></div><span>${p.nome}</span></div></td>
+      <td>${p.quantidade} un</td>
+      <td>${fmt(p.custoUnitario)}</td>
+      <td>${fmt(p.precoSugerido)}</td>
+      <td><span class="margin-pill ${nivel}">${icone} Lucro esperado: ${fmt(lucroEsperado)} (${fmtPct(margemEsperada)})</span></td>
+      <td style="color:var(--emerald-600);font-weight:700">${fmt(p.quantidade * p.custoUnitario)}</td>
+      <td>${status}</td>
+      <td><button class="del-btn" title="Excluir produto" onclick="deleteProduct(${p.id})">🗑</button></td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="row-between">
+      <div>
+        <h1 style="font-size:22px;font-weight:700;margin:0;color:var(--slate-950)">Estoque Geral</h1>
+        <p style="font-size:13px;color:var(--slate-500);margin:4px 0 0">Mapeamento de produtos cadastrados. O estoque é atualizado automaticamente.</p>
+      </div>
+      <button class="btn-primary" onclick="openProductModal()">+ Novo Produto</button>
+    </div>
+    <input class="field" style="max-width:320px" id="estoqueSearch" placeholder="🔎 Pesquisar produto pelo nome..." value="${state.estoqueBusca || ''}" oninput="filterEstoque(this.value)" />
+    <div class="card" style="overflow-x:auto">
+      <table>
+        <thead><tr><th>Produto</th><th>Estoque</th><th>Custo Médio</th><th>Sugerido</th><th>Lucro Esperado</th><th>Valor em Estoque</th><th>Status</th><th></th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="8" class="empty-note">${termo ? 'Nenhum produto encontrado.' : 'Nenhum produto cadastrado.'}</td></tr>`}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function filterEstoque(valor) {
+  state.estoqueBusca = valor;
+  render();
+  const input = document.getElementById('estoqueSearch');
+  if (input) { input.focus(); input.setSelectionRange(input.value.length, input.value.length); }
+}
+
+function deleteProduct(id) {
+  const p = state.products.find(x => x.id === id);
+  if (!p) return;
+  const temHistorico = state.purchases.some(x => x.produtoId === id) || state.sales.some(x => x.produtoId === id);
+  const msg = temHistorico
+    ? `Excluir "${p.nome}"? O histórico de compras e vendas desse produto será mantido, mas ele sairá do estoque.`
+    : `Excluir "${p.nome}"? Essa ação não pode ser desfeita.`;
+  if (!confirm(msg)) return;
+  state.products = state.products.filter(x => x.id !== id);
+  persist();
+  render();
+  showToast(`Produto "${p.nome}" excluído.`);
+}
+
+// ==========================================
+// RENDER: COMPRAS
+// ==========================================
+function renderCompras() {
+  const rows = state.purchases.map(pur => `
+    <div class="list-entry">
+      <div><p class="title">${pur.produtoNome}</p><p class="sub">+${pur.qtd} un • Fornecedor: ${pur.fornecedor || 'Não informado'} • ${pur.data}</p></div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="text-align:right"><p class="amount">${fmt(pur.custoTotal)}</p><p class="amount-sub">Unitário: ${fmt(pur.valorUnitario)}</p></div>
+        <button class="del-btn" title="Excluir compra" onclick="deletePurchase(${pur.id})">🗑</button>
+      </div>
+    </div>`).join('');
+
+  return `
+    <div class="row-between">
+      <div>
+        <h1 style="font-size:22px;font-weight:700;margin:0;color:var(--slate-950)">Compras de Mercadorias</h1>
+        <p style="font-size:13px;color:var(--slate-500);margin:4px 0 0">Abasteça o seu estoque. Novas compras recalculam custos automaticamente.</p>
+      </div>
+      <button class="btn-primary" onclick="openPurchaseModal()">+ Registrar Compra</button>
+    </div>
+    <div class="card">${rows || '<p class="empty-note" style="padding:20px">Nenhuma compra registrada.</p>'}</div>
+  `;
+}
+
+function deletePurchase(id) {
+  const pur = state.purchases.find(x => x.id === id);
+  if (!pur) return;
+  if (!confirm(`Excluir esta compra de "${pur.produtoNome}" (${pur.qtd} un)? O estoque e o custo médio deste produto serão recalculados removendo esta entrada. Essa ação não pode ser desfeita.`)) return;
+
+  const idx = state.products.findIndex(p => p.id === pur.produtoId);
+  if (idx !== -1) {
+    const target = state.products[idx];
+    const novaQtd = target.quantidade - pur.qtd;
+    if (novaQtd <= 0) {
+      state.products[idx] = { ...target, quantidade: 0 };
+    } else {
+      const custoTotalAtual = target.quantidade * target.custoUnitario;
+      const novoCustoTotal = custoTotalAtual - pur.custoTotal;
+      const novoCusto = novoCustoTotal / novaQtd;
+      state.products[idx] = { ...target, quantidade: novaQtd, custoUnitario: parseFloat(Math.max(novoCusto, 0).toFixed(2)) };
+    }
+  }
+  state.purchases = state.purchases.filter(x => x.id !== id);
+  persist();
+  render();
+  showToast('Compra excluída e estoque recalculado.');
+}
+
+// ==========================================
+// RENDER: VENDAS
+// ==========================================
+function renderVendas() {
+  const rows = state.sales.map(s => {
+    const isTroca = s.tipo === 'troca';
+    const titulo = isTroca ? `${s.produtoNome} → Troca por ${s.trocaProdutoNome}${s.trocaDinheiro>0?' + '+fmt(s.trocaDinheiro):''}` : s.produtoNome;
+    const sub = isTroca ? `-${s.qtd} un • ${s.data}${s.trocaObs ? ' • Obs: '+s.trocaObs : ''}` : `-${s.qtd} un • Cliente: ${s.cliente || 'Final'} • ${s.data}`;
+    return `
+    <div class="list-entry">
+      <div><p class="title">${titulo}</p><p class="sub">${sub}</p></div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="text-align:right"><p class="amount">${fmt(s.faturamento)}</p><p class="amount-sub green">Lucro: +${fmt(s.lucro)}</p></div>
+        <button class="del-btn" title="Excluir venda" onclick="deleteSale(${s.id})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="row-between">
+      <div>
+        <h1 style="font-size:22px;font-weight:700;margin:0;color:var(--slate-950)">Histórico de Vendas</h1>
+        <p style="font-size:13px;color:var(--slate-500);margin:4px 0 0">Realize saídas de mercadorias. Os preços de venda são totalmente livres.</p>
+      </div>
+      <button class="btn-primary" onclick="openSaleModal()">+ Nova Venda (PDV)</button>
+    </div>
+    <div class="card">${rows || '<p class="empty-note" style="padding:20px">Nenhuma venda registrada.</p>'}</div>
+  `;
+}
+
+function deleteSale(id) {
+  const s = state.sales.find(x => x.id === id);
+  if (!s) return;
+  if (!confirm(`Excluir esta venda de "${s.produtoNome}" (${s.qtd} un)? O estoque será devolvido ao produto. Essa ação não pode ser desfeita.`)) return;
+
+  const idx = state.products.findIndex(p => p.id === s.produtoId);
+  if (idx !== -1) {
+    state.products[idx] = { ...state.products[idx], quantidade: state.products[idx].quantidade + s.qtd };
+  }
+  state.sales = state.sales.filter(x => x.id !== id);
+  persist();
+  render();
+  showToast('Venda excluída e estoque devolvido.');
+}
+
+// ==========================================
+// RENDER PRINCIPAL
+// ==========================================
+function render() {
+  renderNav();
+  const main = document.getElementById('main');
+  if (activeTab === 'dashboard') main.innerHTML = renderDashboard();
+  else if (activeTab === 'estoque') main.innerHTML = renderEstoque();
+  else if (activeTab === 'compras') main.innerHTML = renderCompras();
+  else if (activeTab === 'vendas') main.innerHTML = renderVendas();
+  main.innerHTML += `<p class="footer-note">Dados salvos automaticamente neste navegador, neste dispositivo.</p>`;
+}
+
+// ==========================================
+// TOAST
+// ==========================================
+function showToast(msg) {
+  const root = document.getElementById('toastRoot');
+  root.innerHTML = `<div class="toast">✅ <span>${msg}</span></div>`;
+  setTimeout(() => { root.innerHTML = ''; }, 4000);
+}
+
+// ==========================================
+// MODAL: NOVO PRODUTO
+// ==========================================
+function openProductModal() {
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+      <div class="modal">
+        <h3>Novo Produto</h3>
+        <form id="productForm">
+          <input class="field" required id="pf_nome" placeholder="Nome do Produto" />
+          <input class="field" id="pf_cat" placeholder="Categoria (ex: Eletrônicos, Alimentos, Peças...)" />
+          <input class="field" type="number" step="0.01" required id="pf_custo" placeholder="Custo unitário inicial" />
+          <div class="hint-box" style="flex-direction:column;align-items:stretch;gap:8px">
+            <strong style="color:var(--slate-700);font-size:12px">🧮 Calculadora de Preço</strong>
+            <div id="pf_marginBtns" data-margin="" style="display:flex;flex-wrap:wrap;gap:6px">
+              <button type="button" class="margin-btn" data-m="10">10%</button>
+              <button type="button" class="margin-btn" data-m="15">15%</button>
+              <button type="button" class="margin-btn" data-m="20">20%</button>
+              <button type="button" class="margin-btn" data-m="25">25%</button>
+              <button type="button" class="margin-btn" data-m="30">30%</button>
+              <button type="button" class="margin-btn" data-m="40">40%</button>
+              <button type="button" class="margin-btn" data-m="50">50%</button>
+              <button type="button" class="margin-btn" data-m="custom">Personalizado</button>
+            </div>
+            <input class="field" style="margin:0" type="number" step="0.1" id="pf_customMargin" placeholder="Margem personalizada (%)" hidden />
+          </div>
+          <input class="field" type="number" step="0.01" required id="pf_preco" placeholder="Preço sugerido de venda" />
+          <p id="pf_marginInfo" style="font-size:11px;color:var(--slate-400);margin:-6px 0 12px">Informe o custo e o preço para ver o lucro esperado.</p>
+          <div class="hint-box">ℹ️ Por consistência, o estoque inicial deste item será zero. Realize uma compra para abastecê-lo.</div>
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" onclick="closeModal()">Cancelar</button>
+            <button type="submit" class="btn-primary" style="flex:1">Criar Produto</button>
+          </div>
+        </form>
+      </div>
+    </div>`;
+  document.getElementById('productForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const nome = document.getElementById('pf_nome').value.trim();
+    const categoria = document.getElementById('pf_cat').value;
+    const custo = parseFloat(document.getElementById('pf_custo').value) || 0;
+    const preco = parseFloat(document.getElementById('pf_preco').value) || 0;
+    if (!nome) return;
+    state.products.unshift({ id: Date.now(), foto: "", nome, categoria, quantidade: 0, custoUnitario: custo, precoSugerido: preco });
+    persist(); closeModal(); render();
+    showToast(`Produto "${nome}" criado com estoque inicial zero.`);
+  });
+  setupPriceCalculator('pf');
+}
+
+// ==========================================
+// CALCULADORA DE PREÇO (custo + margem -> preço sugerido)
+// ==========================================
+function setupPriceCalculator(prefix) {
+  const custoInp = document.getElementById(prefix + '_custo');
+  const precoInp = document.getElementById(prefix + '_preco');
+  const customInp = document.getElementById(prefix + '_customMargin');
+  const btnsBox = document.getElementById(prefix + '_marginBtns');
+  const info = document.getElementById(prefix + '_marginInfo');
+  if (!custoInp || !precoInp || !btnsBox) return;
+
+  function updateInfo() {
+    const custo = parseFloat(custoInp.value) || 0;
+    const preco = parseFloat(precoInp.value) || 0;
+    if (custo <= 0 || preco <= 0) {
+      info.textContent = 'Informe o custo e o preço para ver o lucro esperado.';
+      info.style.color = 'var(--slate-400)';
+      return;
+    }
+    const lucro = preco - custo;
+    const margem = (lucro / custo) * 100;
+    info.textContent = `Lucro esperado: ${fmt(lucro)} · Margem: ${fmtPct(margem)}`;
+    info.style.color = lucro >= 0 ? 'var(--emerald-600)' : 'var(--rose-600)';
+  }
+
+  function recalcPriceFromMargin() {
+    const custo = parseFloat(custoInp.value) || 0;
+    const margem = parseFloat(btnsBox.dataset.margin);
+    if (custo > 0 && !isNaN(margem)) {
+      precoInp.value = (custo * (1 + margem / 100)).toFixed(2);
+    }
+    updateInfo();
+  }
+
+  btnsBox.querySelectorAll('.margin-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btnsBox.querySelectorAll('.margin-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const m = btn.dataset.m;
+      if (m === 'custom') {
+        customInp.hidden = false;
+        customInp.focus();
+        btnsBox.dataset.margin = customInp.value || '';
+      } else {
+        customInp.hidden = true;
+        btnsBox.dataset.margin = m;
+        recalcPriceFromMargin();
+      }
+    });
+  });
+
+  customInp.addEventListener('input', () => {
+    btnsBox.dataset.margin = customInp.value || '';
+    recalcPriceFromMargin();
+  });
+
+  custoInp.addEventListener('input', recalcPriceFromMargin);
+
+  precoInp.addEventListener('input', () => {
+    btnsBox.querySelectorAll('.margin-btn').forEach(b => b.classList.remove('active'));
+    btnsBox.dataset.margin = '';
+    updateInfo();
+  });
+}
+
+// ==========================================
+// MODAL: REGISTRAR COMPRA
+// ==========================================
+function openPurchaseModal() {
+  const root = document.getElementById('modalRoot');
+  const options = state.products.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+  root.innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+      <div class="modal">
+        <h3>Registrar Compra</h3>
+        <form id="purchaseForm">
+          <select class="field" required id="cf_prod"><option value="">Selecione o produto...</option>${options}</select>
+          <div class="grid2">
+            <input class="field" type="number" min="1" required id="cf_qtd" placeholder="Qtd comprada" />
+            <input class="field" type="number" step="0.01" required id="cf_preco" placeholder="Preço unitário" />
+          </div>
+          <div class="grid2">
+            <input class="field" type="number" step="0.01" value="0" id="cf_frete" placeholder="Frete total" />
+            <input class="field" type="number" step="0.01" value="0" id="cf_outros" placeholder="Outros custos" />
+          </div>
+          <input class="field" id="cf_forn" placeholder="Fornecedor" />
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" onclick="closeModal()">Cancelar</button>
+            <button type="submit" class="btn-primary" style="flex:1">Salvar Entrada</button>
+          </div>
+        </form>
+      </div>
+    </div>`;
+  document.getElementById('purchaseForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const pId = parseInt(document.getElementById('cf_prod').value);
+    const q = parseInt(document.getElementById('cf_qtd').value);
+    const uVal = parseFloat(document.getElementById('cf_preco').value);
+    const fr = parseFloat(document.getElementById('cf_frete').value) || 0;
+    const ot = parseFloat(document.getElementById('cf_outros').value) || 0;
+    const forn = document.getElementById('cf_forn').value.trim();
+    if (!pId || !q || !uVal) return;
+    const cTotal = q * uVal + fr + ot;
+    const idx = state.products.findIndex(p => p.id === pId);
+    if (idx === -1) return;
+    const target = state.products[idx];
+    const novaQtd = target.quantidade + q;
+    const novoCusto = novaQtd > 0 ? ((target.quantidade * target.custoUnitario) + cTotal) / novaQtd : uVal;
+    state.products[idx] = { ...target, quantidade: novaQtd, custoUnitario: parseFloat(novoCusto.toFixed(2)) };
+    state.purchases.unshift({ id: Date.now(), produtoId: pId, produtoNome: target.nome, qtd: q, valorUnitario: uVal, frete: fr, outrosCustos: ot, custoTotal: cTotal, fornecedor: forn, data: "Hoje" });
+    persist(); closeModal(); render();
+    showToast(`Estoque somado e custo médio atualizado para "${target.nome}".`);
+  });
+}
+
+// ==========================================
+// MODAL: REGISTRAR VENDA
+// ==========================================
+function openSaleModal() {
+  const root = document.getElementById('modalRoot');
+  const options = state.products.map(p => `<option value="${p.id}" ${p.quantidade===0?'disabled':''}>${p.nome} (Estoque: ${p.quantidade})</option>`).join('');
+  root.innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+      <div class="modal">
+        <h3>Registrar Venda (PDV)</h3>
+        <form id="saleForm">
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <button type="button" class="margin-btn active" id="sf_tipoDinheiro" style="flex:1;padding:9px 10px">💵 Venda em Dinheiro</button>
+            <button type="button" class="margin-btn" id="sf_tipoTroca" style="flex:1;padding:9px 10px">🔁 Venda por Troca</button>
+          </div>
+          <select class="field" required id="sf_prod"><option value="">Selecione o produto...</option>${options}</select>
+          <div class="grid2">
+            <input class="field" type="number" min="1" required id="sf_qtd" value="1" placeholder="Qtd vendida" />
+            <div id="sf_dinheiroFields"><input class="field" type="number" step="0.01" required id="sf_preco" placeholder="Preço final livre" /></div>
+          </div>
+          <div id="sf_trocaFields" class="hidden">
+            <input class="field" id="sf_trocaNome" placeholder="Nome do produto recebido na troca" />
+            <div class="grid2">
+              <input class="field" type="number" step="0.01" id="sf_trocaValor" placeholder="Valor atribuído ao produto (R$)" />
+              <input class="field" type="number" step="0.01" id="sf_trocaDinheiro" value="0" placeholder="Dinheiro recebido (opcional)" />
+            </div>
+            <input class="field" id="sf_trocaObs" placeholder="Observações (opcional)" />
+          </div>
+          <input class="field" id="sf_cliente" placeholder="Nome do Cliente" />
+          <div id="sf_profitBox"></div>
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" onclick="closeModal()">Cancelar</button>
+            <button type="submit" class="btn-primary" id="sf_submit" style="flex:1">Salvar Venda</button>
+          </div>
+        </form>
+      </div>
+    </div>`;
+
+  const prodSel = document.getElementById('sf_prod');
+  const qtdInp = document.getElementById('sf_qtd');
+  const precoInp = document.getElementById('sf_preco');
+  const submitBtn = document.getElementById('sf_submit');
+  const tipoDinheiroBtn = document.getElementById('sf_tipoDinheiro');
+  const tipoTrocaBtn = document.getElementById('sf_tipoTroca');
+  const dinheiroFields = document.getElementById('sf_dinheiroFields');
+  const trocaFields = document.getElementById('sf_trocaFields');
+  const trocaNomeInp = document.getElementById('sf_trocaNome');
+  const trocaValorInp = document.getElementById('sf_trocaValor');
+  const trocaDinheiroInp = document.getElementById('sf_trocaDinheiro');
+
+  let saleTipo = 'dinheiro';
+
+  function toggleTipo() {
+    tipoDinheiroBtn.classList.toggle('active', saleTipo === 'dinheiro');
+    tipoTrocaBtn.classList.toggle('active', saleTipo === 'troca');
+    dinheiroFields.classList.toggle('hidden', saleTipo !== 'dinheiro');
+    trocaFields.classList.toggle('hidden', saleTipo !== 'troca');
+    precoInp.required = saleTipo === 'dinheiro';
+    updateProfitBox();
+  }
+  tipoDinheiroBtn.addEventListener('click', () => { saleTipo = 'dinheiro'; toggleTipo(); });
+  tipoTrocaBtn.addEventListener('click', () => { saleTipo = 'troca'; toggleTipo(); });
+
+  function updateProfitBox() {
+    const p = state.products.find(x => x.id === parseInt(prodSel.value));
+    const box = document.getElementById('sf_profitBox');
+    if (!p) { box.innerHTML = ''; submitBtn.disabled = true; return; }
+    const q = parseInt(qtdInp.value) || 0;
+    const custo = q * p.custoUnitario;
+    let lucro, valido;
+    if (saleTipo === 'dinheiro') {
+      const price = parseFloat(precoInp.value) || 0;
+      lucro = (q * price) - custo;
+      valido = q > 0 && q <= p.quantidade;
+    } else {
+      const valorTroca = parseFloat(trocaValorInp.value) || 0;
+      const dinheiro = parseFloat(trocaDinheiroInp.value) || 0;
+      lucro = (valorTroca + dinheiro) - custo;
+      valido = q > 0 && q <= p.quantidade && trocaNomeInp.value.trim().length > 0 && valorTroca > 0;
+    }
+    box.innerHTML = `<div class="profit-box"><span>Lucro Real Estimado:</span><span class="amt">${lucro>=0?'+ ':'- '}${fmt(Math.abs(lucro))}</span></div>` +
+      (q > p.quantidade ? `<p class="warn-text">Quantidade acima do estoque disponível!</p>` : '');
+    submitBtn.disabled = !valido;
+  }
+
+  prodSel.addEventListener('change', () => {
+    const p = state.products.find(x => x.id === parseInt(prodSel.value));
+    if (p) precoInp.value = p.precoSugerido;
+    updateProfitBox();
+  });
+  qtdInp.addEventListener('input', updateProfitBox);
+  precoInp.addEventListener('input', updateProfitBox);
+  trocaNomeInp.addEventListener('input', updateProfitBox);
+  trocaValorInp.addEventListener('input', updateProfitBox);
+  trocaDinheiroInp.addEventListener('input', updateProfitBox);
+
+  document.getElementById('saleForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const pId = parseInt(prodSel.value);
+    const q = parseInt(qtdInp.value);
+    const cliente = document.getElementById('sf_cliente').value.trim();
+    const idx = state.products.findIndex(p => p.id === pId);
+    if (idx === -1) return;
+    const target = state.products[idx];
+    if (q > target.quantidade || q <= 0) return;
+
+    if (saleTipo === 'dinheiro') {
+      const price = parseFloat(precoInp.value);
+      state.products[idx] = { ...target, quantidade: target.quantidade - q };
+      const faturamento = q * price;
+      const custoTotal = q * target.custoUnitario;
+      const lucroVenda = faturamento - custoTotal;
+      const margemVenda = custoTotal > 0 ? (lucroVenda / custoTotal) * 100 : 0;
+      state.sales.unshift({ id: Date.now(), produtoId: pId, produtoNome: target.nome, qtd: q, precoVendido: price, cliente, faturamento, custoTotal, lucro: lucroVenda, data: "Hoje", tipo: 'dinheiro' });
+      persist(); closeModal(); render();
+      showToast(`Venda registrada! Vendido: ${fmt(faturamento)} · Lucro: ${fmt(lucroVenda)} · Margem: ${fmtPct(margemVenda)}`);
+      return;
+    }
+
+    // Venda por Troca
+    const trocaNome = trocaNomeInp.value.trim();
+    const trocaValor = parseFloat(trocaValorInp.value) || 0;
+    const trocaDinheiro = parseFloat(trocaDinheiroInp.value) || 0;
+    const trocaObs = document.getElementById('sf_trocaObs').value.trim();
+    if (!trocaNome || trocaValor <= 0) return;
+
+    // Baixa do produto vendido
+    state.products[idx] = { ...target, quantidade: target.quantidade - q };
+
+    const faturamento = trocaValor + trocaDinheiro; // valor total da negociação
+    const custoTotal = q * target.custoUnitario;
+    const lucroVenda = faturamento - custoTotal;
+    const margemVenda = custoTotal > 0 ? (lucroVenda / custoTotal) * 100 : 0;
+
+    // Verifica se o produto recebido já existe no estoque
+    const existenteIdx = state.products.findIndex(p => p.nome.trim().toLowerCase() === trocaNome.toLowerCase());
+    if (existenteIdx !== -1) {
+      const existente = state.products[existenteIdx];
+      const somar = confirm(`Já existe "${existente.nome}" no estoque (${existente.quantidade} un, custo médio ${fmt(existente.custoUnitario)}).\n\nOK = somar 1 unidade a ele e recalcular o custo médio.\nCancelar = criar um novo cadastro separado.`);
+      if (somar) {
+        const novaQtd = existente.quantidade + 1;
+        const novoCusto = ((existente.quantidade * existente.custoUnitario) + trocaValor) / novaQtd;
+        state.products[existenteIdx] = { ...existente, quantidade: novaQtd, custoUnitario: parseFloat(novoCusto.toFixed(2)) };
+      } else {
+        state.products.unshift({ id: Date.now() + 1, foto: "", nome: trocaNome, categoria: "", quantidade: 1, custoUnitario: trocaValor, precoSugerido: trocaValor });
+      }
+    } else {
+      state.products.unshift({ id: Date.now() + 1, foto: "", nome: trocaNome, categoria: "", quantidade: 1, custoUnitario: trocaValor, precoSugerido: trocaValor });
+    }
+
+    state.sales.unshift({
+      id: Date.now(), produtoId: pId, produtoNome: target.nome, qtd: q, precoVendido: null, cliente,
+      faturamento, custoTotal, lucro: lucroVenda, data: "Hoje",
+      tipo: 'troca', trocaProdutoNome: trocaNome, trocaValorProduto: trocaValor, trocaDinheiro, trocaObs
+    });
+    persist(); closeModal(); render();
+    showToast(`Troca registrada! ${target.nome} → ${trocaNome}${trocaDinheiro>0?' + '+fmt(trocaDinheiro):''} · Lucro: ${fmt(lucroVenda)} · Margem: ${fmtPct(margemVenda)}`);
+  });
+
+  toggleTipo();
+}
+
+function closeModal() { document.getElementById('modalRoot').innerHTML = ''; }
+
+// ==========================================
+// BACKUP: EXPORTAR / IMPORTAR
+// ==========================================
+function openBackupModal() {
+  const root = document.getElementById('modalRoot');
+  const totalRegistros = state.products.length + state.purchases.length + state.sales.length;
+  root.innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+      <div class="modal">
+        <h3>Backup de Dados</h3>
+        <p style="font-size:12px;color:var(--slate-500);margin:-8px 0 16px">
+          Seus dados ficam salvos apenas neste navegador. Exporte um arquivo de backup regularmente,
+          ou para levar seus dados para outro computador/navegador.
+        </p>
+
+        <div class="hint-box" style="margin-bottom:16px">
+          📦 Você tem <strong>${state.products.length}</strong> produto(s), <strong>${state.purchases.length}</strong> compra(s)
+          e <strong>${state.sales.length}</strong> venda(s) registrados agora.
+        </div>
+
+        <button class="btn-primary" style="width:100%;margin-bottom:10px" onclick="exportBackup()">⬇ Baixar backup (.json)</button>
+
+        <label class="btn-secondary" style="width:100%;display:block;text-align:center;cursor:pointer;box-sizing:border-box">
+          ⬆ Importar backup (.json)
+          <input type="file" accept="application/json,.json" id="importFile" style="display:none" />
+        </label>
+
+        <p id="importWarn" style="font-size:11px;color:var(--rose-600);font-weight:600;text-align:center;margin:10px 0 0"></p>
+
+        <div class="modal-actions" style="margin-top:16px">
+          <button type="button" class="btn-secondary" style="flex:1" onclick="closeModal()">Fechar</button>
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('importFile').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const parsed = JSON.parse(evt.target.result);
+        if (!parsed.products || !parsed.purchases || !parsed.sales) {
+          throw new Error('formato inválido');
+        }
+        const confirmMsg = `Isso vai SUBSTITUIR os dados atuais (${state.products.length} produtos, ${state.purchases.length} compras, ${state.sales.length} vendas) pelos do arquivo (${parsed.products.length} produtos, ${parsed.purchases.length} compras, ${parsed.sales.length} vendas). Continuar?`;
+        if (!confirm(confirmMsg)) return;
+        state = parsed;
+        persist();
+        closeModal();
+        render();
+        showToast('Backup importado com sucesso!');
+      } catch (err) {
+        document.getElementById('importWarn').textContent = 'Arquivo inválido. Selecione um backup .json gerado por este app.';
+      }
+    };
+    reader.readAsText(file);
+  });
+}
+
+function exportBackup() {
+  const dataStr = JSON.stringify(state, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `revendapro-backup-${dateStr}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Backup baixado com sucesso.');
+}
+
+render();
+</script>
+</body>
+</html>
