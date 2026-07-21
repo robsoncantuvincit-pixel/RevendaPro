@@ -1,0 +1,3258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RevendaPro</title>
+<style>
+  :root {
+    --slate-950:#020617; --slate-900:#0f172a; --slate-800:#1e293b; --slate-700:#334155;
+    --slate-500:#64748b; --slate-400:#94a3b8; --slate-100:#f1f5f9; --slate-50:#f8fafc;
+    --emerald-700:#047857; --emerald-600:#059669; --emerald-500:#10b981; --emerald-100:#d1fae5; --emerald-50:#ecfdf5;
+    --rose-700:#be123c; --rose-600:#e11d48; --rose-100:#ffe4e6; --rose-50:#fff1f2;
+    --amber-800:#92400e; --amber-500:#f59e0b; --amber-200:#fde68a; --amber-50:#fffbeb;
+    --white:#ffffff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin:0; background:var(--slate-50); color:var(--slate-900);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .hidden { display:none !important; }
+  header {
+    position:sticky; top:0; z-index:40; width:100%; border-bottom:1px solid var(--slate-100);
+    background:rgba(255,255,255,0.9); backdrop-filter:blur(8px);
+  }
+  .header-inner { margin:0 auto; max-width:1200px; height:64px; display:flex; align-items:center; justify-content:space-between; padding:0 24px; }
+  .brand { display:flex; align-items:center; gap:8px; }
+  .brand-badge { height:24px; width:24px; border-radius:6px; background:var(--slate-900); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; }
+  .brand-name { font-size:18px; font-weight:600; letter-spacing:-0.01em; }
+  nav { display:flex; gap:4px; flex-wrap:wrap; }
+  nav button {
+    border:none; border-radius:999px; padding:7px 16px; font-size:13px; font-weight:600;
+    background:transparent; color:var(--slate-500); cursor:pointer; transition:all .15s; text-transform:capitalize;
+  }
+  nav button:hover { background:var(--slate-100); color:var(--slate-900); }
+  nav button.active { background:var(--slate-900); color:#fff; }
+  main { margin:0 auto; max-width:1200px; padding:28px 24px 60px; }
+  .page-head { display:flex; flex-direction:column; gap:4px; margin-bottom:24px; }
+  .page-head .eyebrow { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--slate-500); }
+  .page-head h1 { font-size:26px; font-weight:700; letter-spacing:-0.02em; margin:0; color:var(--slate-950); }
+  .page-head p { font-size:14px; color:var(--slate-500); margin:0; }
+  .row-between { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+  .btn-primary {
+    border:none; border-radius:12px; background:var(--slate-900); color:#fff; padding:10px 18px;
+    font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 1px 2px rgba(0,0,0,.05);
+  }
+  .btn-primary:hover { background:var(--slate-800); }
+  .btn-primary:disabled { opacity:.4; cursor:not-allowed; }
+  .btn-secondary {
+    border:none; border-radius:12px; background:var(--slate-100); color:var(--slate-700); padding:10px 18px;
+    font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .card { border-radius:16px; border:1px solid var(--slate-100); background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.03); }
+  .metrics-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:28px; }
+  @media (min-width:768px){ .metrics-grid{ grid-template-columns:repeat(4,1fr);} }
+  .metric { padding:18px; }
+  .metric .label { font-size:12px; font-weight:500; color:var(--slate-500); margin:0 0 4px; }
+  .metric .value { font-size:22px; font-weight:700; color:var(--slate-900); margin:0; }
+  .metric.positive .value { color:var(--emerald-700); }
+  .metric.negative .value { color:var(--rose-700); }
+  .metric.highlight { border-color:var(--emerald-100); }
+  .metric.highlight .label { color:rgba(4,120,87,.8); }
+  .lists-grid { display:grid; grid-template-columns:1fr; gap:20px; }
+  @media (min-width:900px){ .lists-grid{ grid-template-columns:repeat(3,1fr);} }
+  .list-card { padding:18px; }
+  .list-card h3 { font-size:14px; font-weight:600; margin:0 0 10px; }
+  .list-row { display:flex; justify-content:space-between; padding:9px 0; font-size:12px; border-top:1px solid var(--slate-100); }
+  .list-row:first-child { border-top:none; }
+  .list-row .name { font-weight:600; color:var(--slate-800); }
+  .list-row .val { font-weight:600; color:var(--slate-700); }
+  .list-row .val.green { color:var(--emerald-700); }
+  .empty-note { font-size:12px; color:var(--slate-500); padding:10px 0; }
+  .alert-box {
+    display:flex; align-items:flex-start; gap:10px; border-radius:16px; border:1px solid var(--amber-200);
+    background:var(--amber-50); padding:14px 16px; margin-bottom:24px; font-size:12px; color:var(--amber-800);
+  }
+  table { width:100%; border-collapse:collapse; text-align:left; font-size:14px; color:var(--slate-500); }
+  thead { background:rgba(248,250,252,.7); font-size:11px; font-weight:700; text-transform:uppercase; color:var(--slate-500); border-bottom:1px solid var(--slate-100); }
+  th, td { padding:14px 20px; }
+  tbody tr { border-top:1px solid var(--slate-100); }
+  tbody tr:hover { background:rgba(248,250,252,.6); }
+  .prod-cell { display:flex; align-items:center; gap:10px; font-weight:600; color:var(--slate-900); }
+  .thumb { height:34px; width:30px; border-radius:8px; object-fit:cover; border:1px solid var(--slate-100); background:var(--slate-100); }
+  .badge { display:inline-flex; align-items:center; border-radius:999px; padding:2px 10px; font-size:11px; font-weight:600; }
+  .badge { font-weight:700; border:1px solid transparent; }
+  .badge.ok { background:var(--emerald-100); color:var(--emerald-700); border-color:var(--emerald-500); }
+  .badge.low { background:var(--amber-200); color:var(--amber-800); border-color:var(--amber-500); }
+  .badge.out { background:var(--rose-100); color:var(--rose-700); border-color:var(--rose-600); }
+  .del-btn {
+    border:none; background:transparent; cursor:pointer; font-size:15px; padding:6px 8px; border-radius:8px;
+    color:var(--slate-500); transition:all .15s; line-height:1;
+  }
+  .del-btn:hover { background:var(--rose-50); color:var(--rose-600); }
+  .list-entry { padding:16px 20px; display:flex; justify-content:space-between; align-items:center; font-size:14px; border-top:1px solid var(--slate-100); }
+  .list-entry:first-child { border-top:none; }
+  .list-entry:hover { background:rgba(248,250,252,.6); }
+  .list-entry .title { font-weight:700; color:var(--slate-900); margin:0; }
+  .list-entry .sub { font-size:11px; font-weight:500; color:var(--slate-700); margin:2px 0 0; }
+  .list-entry .amount { font-weight:700; color:var(--slate-900); margin:0; text-align:right; }
+  .list-entry .amount-sub { font-size:11px; font-weight:500; color:var(--slate-700); margin:2px 0 0; text-align:right; }
+  .list-entry .amount-sub.green { color:var(--emerald-700); font-weight:700; }
+  .modal-overlay {
+    position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center;
+    background:rgba(2,6,23,.4); backdrop-filter:blur(3px); padding:16px;
+  }
+  .modal { width:100%; max-width:420px; border-radius:16px; background:#fff; padding:24px; box-shadow:0 20px 40px rgba(0,0,0,.15); border:1px solid var(--slate-100); }
+  .modal h3 { font-size:17px; font-weight:700; color:var(--slate-950); margin:0 0 16px; }
+  .field { width:100%; padding:10px 12px; font-size:14px; border:1px solid var(--slate-100); border-radius:12px; background:var(--slate-50); margin-bottom:12px; color:var(--slate-900); }
+  .field:focus { outline:2px solid var(--slate-900); outline-offset:1px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .grid2 .field { margin-bottom:12px; }
+  .hint-box { display:flex; gap:8px; align-items:flex-start; border-radius:12px; background:var(--slate-50); border:1px solid var(--slate-100); padding:12px; font-size:11px; color:var(--slate-500); margin-bottom:12px; }
+  .margin-btn { border:1px solid var(--slate-100); background:var(--white); color:var(--slate-700); font-size:11px; font-weight:600; padding:5px 10px; border-radius:999px; cursor:pointer; transition:all .15s; }
+  .margin-btn:hover { background:var(--slate-100); }
+  .margin-btn.active { background:var(--slate-900); color:#fff; border-color:var(--slate-900); }
+  .profit-box { display:flex; justify-content:space-between; align-items:center; border-radius:12px; background:rgba(236,253,245,.5); border:1px solid var(--emerald-100); padding:14px; font-size:12px; font-weight:600; color:var(--emerald-700); margin-bottom:12px; }
+  .profit-box .amt { font-size:14px; font-weight:800; color:var(--emerald-600); }
+  .warn-text { font-size:10px; color:var(--rose-600); font-weight:700; text-align:center; margin:0 0 12px; }
+  .modal-actions { display:flex; gap:8px; }
+  .modal-actions button { flex:1; padding:11px; border-radius:12px; font-size:12px; font-weight:600; border:none; cursor:pointer; }
+  .toast {
+    position:fixed; bottom:24px; right:24px; z-index:60; background:var(--slate-950); color:#fff; font-size:13px;
+    padding:12px 16px; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,.2); display:flex; align-items:center; gap:10px;
+    max-width:320px; border:1px solid var(--slate-800);
+  }
+  .footer-note { text-align:center; font-size:11px; color:var(--slate-500); padding:24px 0 0; }
+  select.field { appearance:none; }
+
+  /* Indicador visual de margem (pílula colorida) */
+  .margin-pill { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px; font-weight:700; font-size:12px; white-space:nowrap; }
+  .margin-pill.m-green { background:var(--emerald-100); color:var(--emerald-700); border:1px solid var(--emerald-500); }
+  .margin-pill.m-amber { background:var(--amber-200); color:var(--amber-800); border:1px solid var(--amber-500); }
+  .margin-pill.m-red { background:var(--rose-100); color:var(--rose-700); border:1px solid var(--rose-600); }
+
+  /* ==========================================
+     AGENDA (calendário mensal)
+     ========================================== */
+  .agenda-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+  .agenda-nav { display:flex; align-items:center; gap:8px; }
+  .agenda-nav .month-label { font-size:16px; font-weight:700; color:var(--slate-950); min-width:150px; text-align:center; text-transform:capitalize; }
+  .agenda-icon-btn { border:1px solid var(--slate-100); background:#fff; color:var(--slate-700); width:34px; height:34px; border-radius:10px; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; }
+  .agenda-icon-btn:hover { background:var(--slate-100); }
+  .agenda-legend { display:flex; gap:14px; flex-wrap:wrap; font-size:11px; color:var(--slate-500); margin-bottom:14px; }
+  .agenda-legend span { display:inline-flex; align-items:center; gap:5px; }
+  .agenda-dot { height:8px; width:8px; border-radius:999px; display:inline-block; flex-shrink:0; }
+  .dot-compra { background:var(--slate-700); }
+  .dot-venda { background:var(--emerald-500); }
+  .dot-entrega { background:var(--amber-500); }
+  .dot-despesa { background:var(--rose-600); }
+  .agenda-grid { display:grid; grid-template-columns:repeat(7,1fr); border-top:1px solid var(--slate-100); border-left:1px solid var(--slate-100); border-radius:16px; overflow:hidden; }
+  .agenda-weekday { background:rgba(248,250,252,.7); font-size:10px; font-weight:700; text-transform:uppercase; color:var(--slate-500); text-align:center; padding:8px 4px; border-right:1px solid var(--slate-100); border-bottom:1px solid var(--slate-100); }
+  .agenda-day {
+    min-height:78px; background:#fff; border-right:1px solid var(--slate-100); border-bottom:1px solid var(--slate-100);
+    padding:6px; display:flex; flex-direction:column; gap:4px; cursor:pointer; transition:background .12s;
+  }
+  .agenda-day:hover { background:var(--slate-50); }
+  .agenda-day.empty { background:rgba(248,250,252,.4); cursor:default; }
+  .agenda-day.today { background:var(--emerald-50); }
+  .agenda-day .day-num { font-size:12px; font-weight:700; color:var(--slate-700); }
+  .agenda-day.today .day-num { color:var(--emerald-700); }
+  .agenda-day.empty .day-num { color:var(--slate-400); }
+  .agenda-day .dots { display:flex; flex-wrap:wrap; gap:3px; }
+  .agenda-day .day-count { font-size:10px; font-weight:700; color:var(--slate-500); margin-top:auto; }
+  @media (max-width:640px) {
+    .agenda-day { min-height:52px; padding:4px; }
+    .agenda-weekday { font-size:9px; padding:6px 2px; }
+    .agenda-nav .month-label { min-width:110px; font-size:14px; }
+  }
+  .agenda-event-row {
+    display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding:10px 0;
+    border-top:1px solid var(--slate-100); font-size:12px;
+  }
+  .agenda-event-row:first-child { border-top:none; }
+  .agenda-event-type { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:2px 8px; border-radius:999px; display:inline-block; margin-bottom:3px; }
+  .type-compra { background:var(--slate-100); color:var(--slate-800); font-weight:700; border:1px solid var(--slate-700); }
+  .type-venda { background:var(--emerald-100); color:var(--emerald-700); font-weight:700; border:1px solid var(--emerald-500); }
+  .type-entrega { background:var(--amber-200); color:var(--amber-800); font-weight:700; border:1px solid var(--amber-500); }
+  .type-despesa { background:var(--rose-100); color:var(--rose-700); font-weight:700; border:1px solid var(--rose-600); }
+  .agenda-quickadd { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:14px; }
+  .agenda-quickadd button { font-size:11px; padding:9px; }
+
+  /* Melhor experiência no celular (uso com uma mão) */
+  @media (max-width:640px) {
+    .header-inner { padding:0 14px; height:58px; }
+    .brand-name { font-size:16px; }
+    nav button { padding:6px 12px; font-size:12px; }
+    main { padding:18px 14px 48px; }
+    .page-head h1 { font-size:22px; }
+    th, td { padding:10px 12px; font-size:13px; }
+    .thumb { height:28px; width:26px; }
+    /* Reduz colunas menos essenciais para um resumo mais limpo no celular */
+    table th:nth-child(3), table td:nth-child(3),
+    table th:nth-child(6), table td:nth-child(6) { display:none; }
+    .del-btn { padding:10px 12px; font-size:16px; }
+    .btn-primary, .btn-secondary { padding:12px 16px; font-size:14px; }
+    .modal { padding:18px; max-width:100%; }
+    .modal-actions button { padding:13px; }
+    .grid2 { grid-template-columns:1fr; }
+    .list-entry { padding:14px 14px; }
+    .metrics-grid { gap:10px; }
+    .metric { padding:14px; }
+    .toast { left:14px; right:14px; bottom:14px; max-width:none; }
+  }
+  /* Evita zoom automático em inputs no iOS */
+  .field { font-size:16px; }
+  @media (min-width:641px) { .field { font-size:14px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand"><div class="brand-badge">R</div><span class="brand-name">RevendaPro</span></div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <nav id="tabNav"></nav>
+      <button id="backupBtn" class="btn-secondary" style="white-space:nowrap;padding:7px 14px" onclick="openBackupModal()">⇅ Backup</button>
+    </div>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+// ==========================================
+// PERSISTÊNCIA LOCAL (localStorage do navegador)
+// ==========================================
+const STORAGE_KEY = 'revendapro_data_v1';
+
+// DADOS INICIAIS (importados do backup revendapro-backup-2026-07-21.json)
+const DEFAULT_STATE = {
+  "products": [
+    {
+      "id": 1783602961269,
+      "foto": "",
+      "nome": "JOGO DE PANELAS 10PÇ BRANCO / MARFIM",
+      "categoria": "PANELAS",
+      "quantidade": 1,
+      "custoUnitario": 180,
+      "precoSugerido": 225
+    },
+    {
+      "id": 1783342288339,
+      "foto": "",
+      "nome": "CAIXA DE SOM XRAD 50W",
+      "categoria": "CAIXAS DE SOM",
+      "quantidade": 0,
+      "custoUnitario": 77.07,
+      "precoSugerido": 115.6
+    },
+    {
+      "id": 1783017109173,
+      "foto": "",
+      "nome": "JOGO DE PANELAS 10PÇ",
+      "categoria": "ALIMENTOS",
+      "quantidade": 3,
+      "custoUnitario": 161,
+      "precoSugerido": 250
+    },
+    {
+      "id": 1783017030846,
+      "foto": "",
+      "nome": "TECLADO GAMER RAZER",
+      "categoria": "PEÇAS",
+      "quantidade": 0,
+      "custoUnitario": 1,
+      "precoSugerido": 250
+    },
+    {
+      "id": 1783016938558,
+      "foto": "",
+      "nome": "PARAFUSADEIRA 2 BATERIAS",
+      "categoria": "FERRAMENTAS",
+      "quantidade": 4,
+      "custoUnitario": 92.6,
+      "precoSugerido": 180
+    },
+    {
+      "id": 1783016883734,
+      "foto": "",
+      "nome": "IPHONE 11 128G",
+      "categoria": "ELETRONICOS",
+      "quantidade": 1,
+      "custoUnitario": 900,
+      "precoSugerido": 1300
+    },
+    {
+      "id": 1783016828397,
+      "foto": "",
+      "nome": "RETROVISOR MOTO",
+      "categoria": "PEÇAS",
+      "quantidade": 1,
+      "custoUnitario": 29,
+      "precoSugerido": 75
+    },
+    {
+      "id": 1783016734606,
+      "foto": "",
+      "nome": "CONTROLE DE PS4",
+      "categoria": "ELETRONICOS",
+      "quantidade": 1,
+      "custoUnitario": 46.19,
+      "precoSugerido": 100
+    },
+    {
+      "id": 1783016669534,
+      "foto": "",
+      "nome": "JOGO DE CATRACAS CR-V 12PÇS",
+      "categoria": "FERRAMENTAS",
+      "quantidade": 0,
+      "custoUnitario": 39,
+      "precoSugerido": 75
+    },
+    {
+      "id": 1783016229798,
+      "foto": "",
+      "nome": "CAIXA DE SOM JBL",
+      "categoria": "CAIXAS DE SOM",
+      "quantidade": 1,
+      "custoUnitario": 49,
+      "precoSugerido": 100
+    }
+  ],
+  "purchases": [
+    {
+      "id": 1784665588264,
+      "produtoId": 1783017109173,
+      "produtoNome": "JOGO DE PANELAS 10PÇ",
+      "qtd": 1,
+      "valorUnitario": 150,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 150,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1784665569553,
+      "produtoId": 1783017109173,
+      "produtoNome": "JOGO DE PANELAS 10PÇ",
+      "qtd": 1,
+      "valorUnitario": 141,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 141,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1784580270247,
+      "produtoId": 1783602961269,
+      "produtoNome": "JOGO DE PANELAS 10PÇ BRANCO / MARFIM",
+      "qtd": 1,
+      "valorUnitario": 180,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 180,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1784558956638,
+      "produtoId": 1783016938558,
+      "produtoNome": "PARAFUSADEIRA 2 BATERIAS",
+      "qtd": 1,
+      "valorUnitario": 90.61,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 90.61,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1784558426916,
+      "produtoId": 1783016938558,
+      "produtoNome": "PARAFUSADEIRA 2 BATERIAS",
+      "qtd": 1,
+      "valorUnitario": 93.49,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 93.49,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1784553694560,
+      "produtoId": 1783017109173,
+      "produtoNome": "JOGO DE PANELAS 10PÇ",
+      "qtd": 1,
+      "valorUnitario": 170,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 170,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1784553667104,
+      "produtoId": 1783016938558,
+      "produtoNome": "PARAFUSADEIRA 2 BATERIAS",
+      "qtd": 1,
+      "valorUnitario": 93.49,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 93.49,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1784553630443,
+      "produtoId": 1783016938558,
+      "produtoNome": "PARAFUSADEIRA 2 BATERIAS",
+      "qtd": 1,
+      "valorUnitario": 90.61,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 90.61,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1784142336439,
+      "produtoId": 1783016938558,
+      "produtoNome": "PARAFUSADEIRA 2 BATERIAS",
+      "qtd": 1,
+      "valorUnitario": 88,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 88,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1784045615640,
+      "produtoId": 1783602961269,
+      "produtoNome": "JOGO DE PANELAS 10PÇ BRANCO / MARFIM",
+      "qtd": 1,
+      "valorUnitario": 150,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 150,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1784045358908,
+      "produtoId": 1783016938558,
+      "produtoNome": "PARAFUSADEIRA 2 BATERIAS",
+      "qtd": 2,
+      "valorUnitario": 104,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 208,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1784045286542,
+      "produtoId": 1783016938558,
+      "produtoNome": "PARAFUSADEIRA 2 BATERIAS",
+      "qtd": 2,
+      "valorUnitario": 88.5,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 177,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1784045240362,
+      "produtoId": 1783016938558,
+      "produtoNome": "PARAFUSADEIRA 2 BATERIAS",
+      "qtd": 1,
+      "valorUnitario": 95,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 95,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1784045150449,
+      "produtoId": 1783016669534,
+      "produtoNome": "JOGO DE CATRACAS CR-V 12PÇS",
+      "qtd": 3,
+      "valorUnitario": 39,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 117,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1783603063582,
+      "produtoId": 1783017109173,
+      "produtoNome": "JOGO DE PANELAS 10PÇ",
+      "qtd": 1,
+      "valorUnitario": 200,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 200,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1783521115602,
+      "produtoId": 1783017109173,
+      "produtoNome": "JOGO DE PANELAS 10PÇ",
+      "qtd": 1,
+      "valorUnitario": 172,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 172,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1783513797202,
+      "produtoId": 1783016938558,
+      "produtoNome": "PARAFUSADEIRA 2 BATERIAS",
+      "qtd": 1,
+      "valorUnitario": 96.99,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 96.99,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1783513443526,
+      "produtoId": 1783016828397,
+      "produtoNome": "RETROVISOR MOTO",
+      "qtd": 1,
+      "valorUnitario": 29,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 29,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1783513289753,
+      "produtoId": 1783016938558,
+      "produtoNome": "PARAFUSADEIRA 2 BATERIAS",
+      "qtd": 1,
+      "valorUnitario": 73.5,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 73.5,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1783342322868,
+      "produtoId": 1783342288339,
+      "produtoNome": "CAIXA DE SOM XRAD 50W",
+      "qtd": 1,
+      "valorUnitario": 77.07,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 77.07,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1783017238486,
+      "produtoId": 1783016883734,
+      "produtoNome": "IPHONE 11 128G",
+      "qtd": 1,
+      "valorUnitario": 900,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 900,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1783017227326,
+      "produtoId": 1783016969982,
+      "produtoNome": "PROJETOR HY320",
+      "qtd": 1,
+      "valorUnitario": 200,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 200,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1783017157352,
+      "produtoId": 1783017109173,
+      "produtoNome": "JOGO DE PANELAS 10PÇ",
+      "qtd": 1,
+      "valorUnitario": 168.9,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 168.9,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1783016781446,
+      "produtoId": 1783016734606,
+      "produtoNome": "CONTROLE DE PS4",
+      "qtd": 2,
+      "valorUnitario": 41.36,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 82.72,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1783016763206,
+      "produtoId": 1783016734606,
+      "produtoNome": "CONTROLE DE PS4",
+      "qtd": 2,
+      "valorUnitario": 51,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 102,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1783016682430,
+      "produtoId": 1783016669534,
+      "produtoNome": "JOGO DE CATRACAS CR-V 12PÇS",
+      "qtd": 3,
+      "valorUnitario": 39,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 117,
+      "fornecedor": "",
+      "data": "Hoje"
+    },
+    {
+      "id": 1783016558014,
+      "produtoId": 1783016471535,
+      "produtoNome": "CAIXA DE FERRAMENTAS 46PÇ",
+      "qtd": 3,
+      "valorUnitario": 30,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 90,
+      "fornecedor": "SHOPPEE",
+      "data": "Hoje"
+    },
+    {
+      "id": 1783016322374,
+      "produtoId": 1783016229798,
+      "produtoNome": "CAIXA DE SOM JBL",
+      "qtd": 4,
+      "valorUnitario": 49,
+      "frete": 0,
+      "outrosCustos": 0,
+      "custoTotal": 196,
+      "fornecedor": "SHOPPE",
+      "data": "Hoje"
+    }
+  ],
+  "sales": [
+    {
+      "id": 1784656304494,
+      "produtoId": 1783016938558,
+      "produtoNome": "PARAFUSADEIRA 2 BATERIAS",
+      "qtd": 3,
+      "precoVendido": 150,
+      "cliente": "",
+      "faturamento": 450,
+      "custoTotal": 277.79999999999995,
+      "lucro": 172.20000000000005,
+      "data": "Hoje",
+      "tipo": "dinheiro"
+    },
+    {
+      "id": 1784656272903,
+      "produtoId": 1783016669534,
+      "produtoNome": "JOGO DE CATRACAS CR-V 12PÇS",
+      "qtd": 3,
+      "precoVendido": 70,
+      "cliente": "",
+      "faturamento": 210,
+      "custoTotal": 117,
+      "lucro": 93,
+      "data": "Hoje",
+      "tipo": "dinheiro"
+    },
+    {
+      "id": 1784648757808,
+      "produtoId": 1783016734606,
+      "produtoNome": "CONTROLE DE PS4",
+      "qtd": 1,
+      "precoVendido": 90,
+      "cliente": "",
+      "faturamento": 90,
+      "custoTotal": 46.19,
+      "lucro": 43.81,
+      "data": "Hoje",
+      "tipo": "dinheiro"
+    },
+    {
+      "id": 1784551976801,
+      "produtoId": 1783017109173,
+      "produtoNome": "JOGO DE PANELAS 10PÇ",
+      "qtd": 1,
+      "precoVendido": 280,
+      "cliente": "",
+      "faturamento": 280,
+      "custoTotal": 183.33,
+      "lucro": 96.66999999999999,
+      "data": "Hoje",
+      "tipo": "dinheiro"
+    },
+    {
+      "id": 1784226681312,
+      "produtoId": 1783602961269,
+      "produtoNome": "JOGO DE PANELAS 10PÇ BRANCO / MARFIM",
+      "qtd": 1,
+      "precoVendido": 200,
+      "cliente": "",
+      "faturamento": 200,
+      "custoTotal": 150,
+      "lucro": 50,
+      "data": "Hoje",
+      "tipo": "dinheiro"
+    },
+    {
+      "id": 1784141153334,
+      "produtoId": 1783016229798,
+      "produtoNome": "CAIXA DE SOM JBL",
+      "qtd": 1,
+      "precoVendido": 100,
+      "cliente": "",
+      "faturamento": 100,
+      "custoTotal": 49,
+      "lucro": 51,
+      "data": "Hoje",
+      "tipo": "dinheiro"
+    },
+    {
+      "id": 1784141141390,
+      "produtoId": 1783016938558,
+      "produtoNome": "PARAFUSADEIRA 2 BATERIAS",
+      "qtd": 1,
+      "precoVendido": 150,
+      "cliente": "",
+      "faturamento": 150,
+      "custoTotal": 96,
+      "lucro": 54,
+      "data": "Hoje",
+      "tipo": "dinheiro"
+    },
+    {
+      "id": 1784045564211,
+      "produtoId": 1783016938558,
+      "produtoNome": "PARAFUSADEIRA 2 BATERIAS",
+      "qtd": 1,
+      "precoVendido": 150,
+      "cliente": "",
+      "faturamento": 150,
+      "custoTotal": 96,
+      "lucro": 54,
+      "data": "Hoje",
+      "tipo": "dinheiro"
+    },
+    {
+      "id": 1784045550186,
+      "produtoId": 1783016669534,
+      "produtoNome": "JOGO DE CATRACAS CR-V 12PÇS",
+      "qtd": 1,
+      "precoVendido": 70,
+      "cliente": "",
+      "faturamento": 70,
+      "custoTotal": 39,
+      "lucro": 31,
+      "data": "Hoje",
+      "tipo": "dinheiro"
+    },
+    {
+      "id": 1784045527841,
+      "produtoId": 1783016669534,
+      "produtoNome": "JOGO DE CATRACAS CR-V 12PÇS",
+      "qtd": 1,
+      "precoVendido": 70,
+      "cliente": "",
+      "faturamento": 70,
+      "custoTotal": 39,
+      "lucro": 31,
+      "data": "Hoje",
+      "tipo": "dinheiro"
+    },
+    {
+      "id": 1784045517994,
+      "produtoId": 1783016938558,
+      "produtoNome": "PARAFUSADEIRA 2 BATERIAS",
+      "qtd": 1,
+      "precoVendido": 150,
+      "cliente": "",
+      "faturamento": 150,
+      "custoTotal": 96,
+      "lucro": 54,
+      "data": "Hoje",
+      "tipo": "dinheiro"
+    },
+    {
+      "id": 1784040565726,
+      "produtoId": 1783016938558,
+      "produtoNome": "PARAFUSADEIRA 2 BATERIAS",
+      "qtd": 1,
+      "precoVendido": 150,
+      "cliente": "",
+      "faturamento": 150,
+      "custoTotal": 96.14,
+      "lucro": 53.86,
+      "data": "Hoje",
+      "tipo": "dinheiro"
+    },
+    {
+      "id": 1784038446702,
+      "produtoId": 1783017109173,
+      "produtoNome": "JOGO DE PANELAS 10PÇ",
+      "qtd": 1,
+      "precoVendido": 250,
+      "cliente": "",
+      "faturamento": 250,
+      "custoTotal": 183.33,
+      "lucro": 66.66999999999999,
+      "data": "Hoje",
+      "tipo": "dinheiro"
+    },
+    {
+      "id": 1783513819065,
+      "produtoId": 1783016938558,
+      "produtoNome": "PARAFUSADEIRA 2 BATERIAS",
+      "qtd": 1,
+      "precoVendido": 180,
+      "cliente": "",
+      "faturamento": 180,
+      "custoTotal": 96.99,
+      "lucro": 83.01,
+      "data": "Hoje",
+      "tipo": "dinheiro"
+    },
+    {
+      "id": 1783429976916,
+      "produtoId": 1783017109173,
+      "produtoNome": "JOGO DE PANELAS 10PÇ",
+      "qtd": 1,
+      "precoVendido": 250,
+      "cliente": "",
+      "faturamento": 250,
+      "custoTotal": 168.9,
+      "lucro": 81.1,
+      "data": "Hoje",
+      "tipo": "dinheiro"
+    },
+    {
+      "id": 1783342351188,
+      "produtoId": 1783342288339,
+      "produtoNome": "CAIXA DE SOM XRAD 50W",
+      "qtd": 1,
+      "precoVendido": 200,
+      "cliente": "",
+      "faturamento": 200,
+      "custoTotal": 77.07,
+      "lucro": 122.93,
+      "data": "Hoje",
+      "tipo": "dinheiro"
+    },
+    {
+      "id": 1783017464126,
+      "produtoId": 1783016969982,
+      "produtoNome": "PROJETOR HY320",
+      "qtd": 1,
+      "precoVendido": 250,
+      "cliente": "",
+      "faturamento": 250,
+      "custoTotal": 200,
+      "lucro": 50,
+      "data": "Hoje"
+    },
+    {
+      "id": 1783017426742,
+      "produtoId": 1783016734606,
+      "produtoNome": "CONTROLE DE PS4",
+      "qtd": 2,
+      "precoVendido": 80,
+      "cliente": "",
+      "faturamento": 160,
+      "custoTotal": 92.36,
+      "lucro": 67.64,
+      "data": "Hoje"
+    },
+    {
+      "id": 1783016693862,
+      "produtoId": 1783016669534,
+      "produtoNome": "JOGO DE CATRACAS CR-V 12PÇS",
+      "qtd": 1,
+      "precoVendido": 75,
+      "cliente": "",
+      "faturamento": 75,
+      "custoTotal": 39,
+      "lucro": 36,
+      "data": "Hoje"
+    },
+    {
+      "id": 1783016587708,
+      "produtoId": 1783016471535,
+      "produtoNome": "CAIXA DE FERRAMENTAS 46PÇ",
+      "qtd": 1,
+      "precoVendido": 50,
+      "cliente": "",
+      "faturamento": 50,
+      "custoTotal": 30,
+      "lucro": 20,
+      "data": "Hoje"
+    },
+    {
+      "id": 1783016578702,
+      "produtoId": 1783016471535,
+      "produtoNome": "CAIXA DE FERRAMENTAS 46PÇ",
+      "qtd": 2,
+      "precoVendido": 60,
+      "cliente": "",
+      "faturamento": 120,
+      "custoTotal": 60,
+      "lucro": 60,
+      "data": "Hoje"
+    },
+    {
+      "id": 1783016372102,
+      "produtoId": 1783016229798,
+      "produtoNome": "CAIXA DE SOM JBL",
+      "qtd": 2,
+      "precoVendido": 100,
+      "cliente": "",
+      "faturamento": 200,
+      "custoTotal": 98,
+      "lucro": 102,
+      "data": "Hoje"
+    }
+  ],
+  "expenses": [],
+  "deliveries": []
+};
+
+// Garante que todo estado (novo ou de um backup antigo) tenha as listas de
+// despesas e entregas, adicionadas junto com a Agenda.
+function migrarNovasListas(st) {
+  if (!Array.isArray(st.expenses)) st.expenses = [];
+  if (!Array.isArray(st.deliveries)) st.deliveries = [];
+  return st;
+}
+
+function loadState() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    try { return migrarNovasListas(migrarFormaPagamento(migrarDatas(JSON.parse(raw)))); } catch (e) { /* fallback abaixo */ }
+  }
+  return migrarNovasListas(migrarFormaPagamento(migrarDatas(DEFAULT_STATE)));
+}
+
+let state = loadState();
+let activeTab = 'dashboard';
+let agendaRef = new Date(); // mês/ano atualmente exibido na Agenda
+let comprasViewMode = 'produto';   // 'produto' (consolidado) ou 'lista' (cronológico)
+let vendasViewMode = 'produto';    // 'produto' (consolidado) ou 'lista' (cronológico)
+let collapsedCompraGroups = new Set(); // grupos de produto recolhidos na visão consolidada de Compras
+let collapsedVendaGroups = new Set();  // grupos de produto recolhidos na visão consolidada de Vendas
+
+function persist() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+// ==========================================
+// UTILITÁRIOS
+// ==========================================
+const $ = (id) => document.getElementById(id);
+
+function fmt(n) { return 'R$ ' + (Number(n) || 0).toFixed(2); }
+function fmtPct(n) { return (Number(n) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%'; }
+
+// ==========================================
+// DATA/HORA: helpers e migração
+// ==========================================
+// Valor padrão (data atual) para preencher um <input type="date">
+function nowDateInputValue(d = new Date()) {
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+// Valor padrão (hora atual) para preencher um <input type="time">
+function nowTimeInputValue(d = new Date()) {
+  const p = (n) => String(n).padStart(2, '0');
+  return `${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+// Combina os valores digitados de data + hora em uma string ISO (instante exato)
+function combineDateHora(dateVal, timeVal) {
+  if (!dateVal) return new Date().toISOString();
+  const t = (timeVal && /^\d{2}:\d{2}/.test(timeVal)) ? timeVal : '00:00';
+  const d = new Date(`${dateVal}T${t}:00`);
+  return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+}
+// Formata uma dataHora ISO para exibição amigável: "Hoje, 14:30" / "Ontem, 09:00" / "21/07/2026, 14:30"
+function formatDataHora(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  const agora = new Date();
+  const mesmoDia = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  const ontem = new Date(agora); ontem.setDate(agora.getDate() - 1);
+  const horaStr = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  if (mesmoDia(d, agora)) return `Hoje, ${horaStr}`;
+  if (mesmoDia(d, ontem)) return `Ontem, ${horaStr}`;
+  return `${d.toLocaleDateString('pt-BR')}, ${horaStr}`;
+}
+// Retorna a chave "AAAA-MM-DD" (fuso local) de uma dataHora ISO — usada para
+// agrupar eventos por dia na Agenda.
+function dateKey(iso) {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+// Preenche os campos de data/hora de um formulário com o instante atual do
+// relógio do computador (usado pelo botão "🕓 Agora" nos formulários)
+function setNowDateTime(dateId, timeId) {
+  const n = new Date();
+  const dateEl = $(dateId), timeEl = $(timeId);
+  if (dateEl) dateEl.value = nowDateInputValue(n);
+  if (timeEl) timeEl.value = nowTimeInputValue(n);
+}
+
+// Monta o cabeçalho "Data e hora..." com o botão de atalho "🕓 Agora"
+function dataHoraLabel(texto, dateId, timeId) {
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 6px">
+      <p style="font-size:11px;font-weight:600;color:var(--slate-500);margin:0">${texto}</p>
+      <button type="button" class="margin-btn" onclick="setNowDateTime('${dateId}','${timeId}')">🕓 Agora</button>
+    </div>`;
+}
+
+// Garante que todo registro de compra/venda tenha uma dataHora válida.
+// Compatibilidade com backups antigos: registros sem dataHora (ex.: data:"Hoje")
+// recebem uma dataHora derivada do próprio id, que já é um timestamp de criação.
+function migrarDatas(st) {
+  const corrigirLista = (lista) => {
+    (lista || []).forEach(item => {
+      if (!item.dataHora) {
+        const base = Number(item.id);
+        item.dataHora = (base && !isNaN(base)) ? new Date(base).toISOString() : new Date().toISOString();
+      }
+      delete item.data; // campo antigo ("Hoje") não é mais usado para exibição
+    });
+  };
+  corrigirLista(st.purchases);
+  corrigirLista(st.sales);
+  return st;
+}
+
+// ==========================================
+// FORMA DE PAGAMENTO
+// ==========================================
+const FORMAS_PAGAMENTO_COMPRA = ['PIX', 'Dinheiro', 'Cartão Crédito', 'Outro'];
+const FORMAS_PAGAMENTO_VENDA = ['PIX', 'Dinheiro', 'Cartão Crédito'];
+
+// Compatibilidade com backups antigos: registros sem formaPagamento recebem um valor
+// padrão razoável (compras: "Outro" por serem desconhecidas; vendas em dinheiro: "Dinheiro",
+// já que era o único tipo de recebimento em espécie suportado antes desta função existir).
+function migrarFormaPagamento(st) {
+  (st.purchases || []).forEach(p => { if (!p.formaPagamento) p.formaPagamento = 'Outro'; });
+  (st.sales || []).forEach(s => {
+    if (!s.formaPagamento && s.tipo === 'dinheiro') s.formaPagamento = 'Dinheiro';
+  });
+  return st;
+}
+
+// Evita que nomes/observações digitados pelo usuário quebrem o HTML renderizado
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+// Calcula lucro e margem (%) a partir de um custo e um valor de referência (preço/faturamento)
+function calcLucroMargem(custo, valor) {
+  const lucro = valor - custo;
+  const margem = custo > 0 ? (lucro / custo) * 100 : 0;
+  return { lucro, margem };
+}
+
+// ==========================================
+// HELPERS DE PRODUTO / ESTOQUE
+// ==========================================
+function getProductIndex(id) { return state.products.findIndex(p => p.id === id); }
+function getProduct(id) { return state.products[getProductIndex(id)]; }
+
+function updateProductAt(idx, changes) {
+  state.products[idx] = { ...state.products[idx], ...changes };
+}
+
+// Soma uma compra ao estoque, recalculando a média ponderada do custo unitário
+function applyPurchaseToStock(idx, qtd, custoTotalCompra, valorUnitario) {
+  const target = state.products[idx];
+  const novaQtd = target.quantidade + qtd;
+  const novoCusto = novaQtd > 0
+    ? ((target.quantidade * target.custoUnitario) + custoTotalCompra) / novaQtd
+    : valorUnitario;
+  updateProductAt(idx, { quantidade: novaQtd, custoUnitario: parseFloat(novoCusto.toFixed(2)) });
+}
+
+// Remove uma compra do estoque (usado ao excluir compra), recalculando o custo médio
+function removePurchaseFromStock(idx, qtdRemovida, custoTotalRemovido) {
+  const target = state.products[idx];
+  const novaQtd = target.quantidade - qtdRemovida;
+  if (novaQtd <= 0) {
+    updateProductAt(idx, { quantidade: 0 });
+    return;
+  }
+  const custoTotalAtual = target.quantidade * target.custoUnitario;
+  const novoCustoTotal = custoTotalAtual - custoTotalRemovido;
+  const novoCusto = novoCustoTotal / novaQtd;
+  updateProductAt(idx, { quantidade: novaQtd, custoUnitario: parseFloat(Math.max(novoCusto, 0).toFixed(2)) });
+}
+
+// Devolve unidades ao estoque (usado ao excluir venda)
+function returnStock(idx, qtd) {
+  updateProductAt(idx, { quantidade: state.products[idx].quantidade + qtd });
+}
+
+// Dá baixa no estoque (usado ao registrar venda)
+function deductStock(idx, qtd) {
+  updateProductAt(idx, { quantidade: state.products[idx].quantidade - qtd });
+}
+
+// ==========================================
+// VENDAS EM CARRINHO (múltiplos itens por venda)
+// ==========================================
+// Retorna a lista de itens de uma venda. Vendas novas (carrinho) já trazem
+// "itens". Vendas antigas (uma única linha por produto) são adaptadas aqui
+// para manter compatibilidade com backups anteriores a este recurso.
+function getSaleItens(sale) {
+  if (Array.isArray(sale.itens) && sale.itens.length) return sale.itens;
+  const qtd = sale.qtd || 0;
+  const custoTotalItem = sale.custoTotal || 0;
+  return [{
+    produtoId: sale.produtoId,
+    produtoNome: sale.produtoNome,
+    qtd,
+    precoUnitario: sale.precoVendido != null ? sale.precoVendido : (qtd ? (sale.faturamento || 0) / qtd : 0),
+    desconto: 0,
+    subtotal: sale.faturamento || 0,
+    custoUnitario: qtd ? custoTotalItem / qtd : 0,
+    custoTotalItem,
+    lucroItem: sale.lucro || 0
+  }];
+}
+
+// Observações da venda: novas vendas usam "observacoes"; trocas antigas usavam "trocaObs"
+function getSaleObs(sale) {
+  return (sale.observacoes != null && sale.observacoes !== '') ? sale.observacoes : (sale.trocaObs || '');
+}
+
+// Número sequencial da venda, baseado na ordem cronológica (não muda ao excluir vendas antigas)
+function getSaleNumero(sale) {
+  const ordenadas = [...state.sales].sort((a, b) => new Date(a.dataHora) - new Date(b.dataHora));
+  return ordenadas.findIndex(s => s.id === sale.id) + 1;
+}
+
+// ==========================================
+// CÁLCULOS DO DASHBOARD
+// ==========================================
+function computeMetrics() {
+  const { products, purchases, sales } = state;
+  const totalInvestimento = purchases.reduce((s, p) => s + p.custoTotal, 0);
+  const totalValorEstoque = products.reduce((s, p) => s + p.quantidade * p.custoUnitario, 0);
+  const totalFaturamento = sales.reduce((s, v) => s + v.faturamento, 0);
+  const totalLucroBruto = sales.reduce((s, v) => s + (v.faturamento - v.custoTotal), 0);
+  const totalDespesas = purchases.reduce((s, p) => s + p.frete + p.outrosCustos, 0);
+  const totalLucroLiquido = totalLucroBruto - totalDespesas;
+  const ticketMedio = sales.length > 0 ? totalFaturamento / sales.length : 0;
+  const roi = totalInvestimento > 0 ? (totalLucroLiquido / totalInvestimento) * 100 : 0;
+
+  const vendCounts = {};
+  const lucroPorProd = {};
+  sales.forEach(v => {
+    getSaleItens(v).forEach(it => {
+      vendCounts[it.produtoNome] = (vendCounts[it.produtoNome] || 0) + it.qtd;
+      lucroPorProd[it.produtoNome] = (lucroPorProd[it.produtoNome] || 0) + it.lucroItem;
+    });
+  });
+  const rankVendidos = Object.entries(vendCounts).map(([nome, qtd]) => ({ nome, val: `${qtd} un vendidas`, n: qtd }))
+    .sort((a, b) => b.n - a.n).slice(0, 3);
+
+  const rankLucrativos = Object.entries(lucroPorProd).map(([nome, l]) => ({ nome, val: fmt(l), n: l }))
+    .sort((a, b) => b.n - a.n).slice(0, 3);
+
+  const estoqueBaixo = products.filter(p => p.quantidade > 0 && p.quantidade <= 3);
+
+  // Total recebido em vendas, agrupado por forma de pagamento (apenas vendas em dinheiro têm forma de pagamento)
+  const recebidoPorForma = {};
+  FORMAS_PAGAMENTO_VENDA.forEach(f => { recebidoPorForma[f] = 0; });
+  sales.forEach(v => {
+    if (v.formaPagamento && recebidoPorForma.hasOwnProperty(v.formaPagamento)) {
+      recebidoPorForma[v.formaPagamento] += v.faturamento;
+    }
+  });
+
+  // Total gasto em compras, agrupado por forma de pagamento
+  const gastoPorFormaObj = {};
+  purchases.forEach(p => {
+    const forma = p.formaPagamento || 'Outro';
+    gastoPorFormaObj[forma] = (gastoPorFormaObj[forma] || 0) + p.custoTotal;
+  });
+  const gastoPorForma = FORMAS_PAGAMENTO_COMPRA
+    .map(f => ({ forma: f, valor: gastoPorFormaObj[f] || 0 }))
+    .filter(g => g.valor > 0);
+
+  return { totalInvestimento, totalValorEstoque, totalFaturamento, totalLucroBruto, totalLucroLiquido, ticketMedio, roi, rankVendidos, rankLucrativos, estoqueBaixo, recebidoPorForma, gastoPorForma };
+}
+
+// ==========================================
+// CÁLCULOS DO NOVO DASHBOARD (períodos, campeões, séries p/ gráficos)
+// ==========================================
+function saleLucro(v) { return v.faturamento - v.custoTotal; }
+
+function somaPeriodo(sales, dentroDoPeriodo) {
+  let faturamento = 0, lucro = 0, qtd = 0, n = 0;
+  sales.forEach(v => {
+    if (!dentroDoPeriodo(new Date(v.dataHora))) return;
+    faturamento += v.faturamento;
+    lucro += saleLucro(v);
+    n++;
+    getSaleItens(v).forEach(it => { qtd += it.qtd; });
+  });
+  return { faturamento, lucro, qtd, n };
+}
+
+function computeDashboardV2() {
+  const { products, sales } = state;
+  const agora = new Date();
+  const hojeKey = dateKey(agora.toISOString());
+
+  const mesmoDia = (d) => dateKey(d.toISOString()) === hojeKey;
+  const seteDiasAtras = new Date(agora); seteDiasAtras.setDate(agora.getDate() - 6); seteDiasAtras.setHours(0,0,0,0);
+  const naSemana = (d) => d >= seteDiasAtras;
+  const noMes = (d) => d.getFullYear() === agora.getFullYear() && d.getMonth() === agora.getMonth();
+  const noAno = (d) => d.getFullYear() === agora.getFullYear();
+
+  const hoje = somaPeriodo(sales, mesmoDia);
+  const semana = somaPeriodo(sales, naSemana);
+  const mes = somaPeriodo(sales, noMes);
+  const ano = somaPeriodo(sales, noAno);
+
+  const totalFaturamento = sales.reduce((s, v) => s + v.faturamento, 0);
+  const totalLucroBruto = sales.reduce((s, v) => s + saleLucro(v), 0);
+  const ticketMedio = sales.length > 0 ? totalFaturamento / sales.length : 0;
+  const lucroMedio = sales.length > 0 ? totalLucroBruto / sales.length : 0;
+
+  // Produto campeão (mais unidades vendidas) e categoria campeã (soma de unidades por categoria)
+  const catByName = {};
+  products.forEach(p => { catByName[p.nome] = p.categoria || 'Sem categoria'; });
+
+  const vendCounts = {};
+  const catCounts = {};
+  let totalUnidadesVendidas = 0;
+  sales.forEach(v => {
+    getSaleItens(v).forEach(it => {
+      vendCounts[it.produtoNome] = (vendCounts[it.produtoNome] || 0) + it.qtd;
+      const cat = catByName[it.produtoNome] || 'Sem categoria';
+      catCounts[cat] = (catCounts[cat] || 0) + it.qtd;
+      totalUnidadesVendidas += it.qtd;
+    });
+  });
+  const produtoCampeao = Object.entries(vendCounts).sort((a, b) => b[1] - a[1])[0];
+  const categoriaCampea = Object.entries(catCounts).sort((a, b) => b[1] - a[1])[0];
+  const catBreakdown = Object.entries(catCounts).sort((a, b) => b[1] - a[1]).map(([categoria, qtd]) => ({ label: categoria, value: qtd }));
+
+  // Forma de pagamento mais utilizada (por frequência de vendas, não por valor)
+  const formaCounts = {};
+  sales.forEach(v => {
+    if (v.formaPagamento) formaCounts[v.formaPagamento] = (formaCounts[v.formaPagamento] || 0) + 1;
+  });
+  const formaTop = Object.entries(formaCounts).sort((a, b) => b[1] - a[1])[0];
+
+  const capitalEstoque = products.reduce((s, p) => s + p.quantidade * p.custoUnitario, 0);
+  const patrimonioTotal = capitalEstoque + totalLucroBruto;
+
+  // Série diária (últimos 14 dias) para os gráficos de evolução
+  const dias = 14;
+  const serie = [];
+  for (let i = dias - 1; i >= 0; i--) {
+    const d = new Date(agora); d.setDate(agora.getDate() - i);
+    serie.push({ key: dateKey(d.toISOString()), label: String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0'), faturamento: 0, lucro: 0, unidades: 0 });
+  }
+  const serieMap = {}; serie.forEach(s => { serieMap[s.key] = s; });
+  sales.forEach(v => {
+    const k = dateKey(v.dataHora);
+    if (!serieMap[k]) return;
+    serieMap[k].faturamento += v.faturamento;
+    serieMap[k].lucro += saleLucro(v);
+    getSaleItens(v).forEach(it => { serieMap[k].unidades += it.qtd; });
+  });
+
+  return {
+    hoje, semana, mes, ano,
+    totalUnidadesVendidas, ticketMedio, lucroMedio,
+    produtoCampeao, categoriaCampea, catBreakdown, formaTop,
+    capitalEstoque, patrimonioTotal, serie
+  };
+}
+
+// ==========================================
+// CÁLCULOS AVANÇADOS DE ANÁLISE (comparativos, ABC, sazonalidade, giro, clientes)
+// ==========================================
+
+// Variação percentual entre um valor atual e o do período anterior
+function diffPercent(atual, anterior) {
+  if (anterior === 0) return atual > 0 ? 100 : 0;
+  return ((atual - anterior) / Math.abs(anterior)) * 100;
+}
+
+// Selo visual (▲/▼) para indicar crescimento ou queda em relação ao período anterior
+function growthBadge(pct) {
+  if (!isFinite(pct)) return '';
+  const seta = pct > 0.5 ? '▲' : pct < -0.5 ? '▼' : '▬';
+  const cor = pct > 0.5 ? 'var(--emerald-700)' : pct < -0.5 ? 'var(--rose-700)' : 'var(--slate-500)';
+  return `<span style="color:${cor};font-weight:700;font-size:11px">${seta} ${Math.abs(pct).toFixed(1)}% vs período anterior</span>`;
+}
+
+// Compara semana, mês e ano atuais com os períodos imediatamente anteriores de mesma duração
+function computeComparativos() {
+  const { sales } = state;
+  const agora = new Date();
+
+  const inicioSemanaAtual = new Date(agora); inicioSemanaAtual.setDate(agora.getDate() - 6); inicioSemanaAtual.setHours(0, 0, 0, 0);
+  const inicioSemanaAnterior = new Date(inicioSemanaAtual); inicioSemanaAnterior.setDate(inicioSemanaAtual.getDate() - 7);
+  const semanaAtual = somaPeriodo(sales, d => d >= inicioSemanaAtual);
+  const semanaAnterior = somaPeriodo(sales, d => d >= inicioSemanaAnterior && d < inicioSemanaAtual);
+
+  const anoAtualNum = agora.getFullYear(), mesAtualNum = agora.getMonth();
+  const mesAnteriorRef = new Date(anoAtualNum, mesAtualNum - 1, 1);
+  const mesAtual = somaPeriodo(sales, d => d.getFullYear() === anoAtualNum && d.getMonth() === mesAtualNum);
+  const mesAnterior = somaPeriodo(sales, d => d.getFullYear() === mesAnteriorRef.getFullYear() && d.getMonth() === mesAnteriorRef.getMonth());
+
+  const anoAtual = somaPeriodo(sales, d => d.getFullYear() === anoAtualNum);
+  const anoAnterior = somaPeriodo(sales, d => d.getFullYear() === anoAtualNum - 1);
+
+  return {
+    semana: { atual: semanaAtual, anterior: semanaAnterior, variacao: diffPercent(semanaAtual.faturamento, semanaAnterior.faturamento) },
+    mes: { atual: mesAtual, anterior: mesAnterior, variacao: diffPercent(mesAtual.faturamento, mesAnterior.faturamento) },
+    ano: { atual: anoAtual, anterior: anoAnterior, variacao: diffPercent(anoAtual.faturamento, anoAnterior.faturamento) }
+  };
+}
+
+// Curva ABC: classifica produtos por participação acumulada no faturamento (regra 80/15/5)
+function computeCurvaABC() {
+  const fatPorProduto = {};
+  state.sales.forEach(v => {
+    getSaleItens(v).forEach(it => {
+      const valor = it.subtotal != null ? it.subtotal : it.qtd * it.precoUnitario;
+      fatPorProduto[it.produtoNome] = (fatPorProduto[it.produtoNome] || 0) + valor;
+    });
+  });
+  const totalFat = Object.values(fatPorProduto).reduce((a, b) => a + b, 0);
+  const ordenado = Object.entries(fatPorProduto).sort((a, b) => b[1] - a[1]);
+  let acumulado = 0;
+  const classificados = ordenado.map(([nome, valor]) => {
+    acumulado += valor;
+    const pctAcumulado = totalFat > 0 ? (acumulado / totalFat) * 100 : 0;
+    const classe = pctAcumulado <= 80 ? 'A' : pctAcumulado <= 95 ? 'B' : 'C';
+    return { nome, valor, pct: totalFat > 0 ? (valor / totalFat) * 100 : 0, pctAcumulado, classe };
+  });
+  const resumo = { A: 0, B: 0, C: 0 };
+  classificados.forEach(c => resumo[c.classe]++);
+  return { classificados, resumo, totalFat };
+}
+
+// Faturamento agrupado por dia da semana, para identificar o melhor dia de vendas
+function computeMelhorDiaSemana() {
+  const nomes = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+  const porDia = nomes.map(nome => ({ nome, faturamento: 0, n: 0 }));
+  state.sales.forEach(v => {
+    const d = new Date(v.dataHora);
+    if (isNaN(d.getTime())) return;
+    porDia[d.getDay()].faturamento += v.faturamento;
+    porDia[d.getDay()].n += 1;
+  });
+  const melhor = [...porDia].sort((a, b) => b.faturamento - a.faturamento)[0];
+  return { porDia, melhor: melhor && melhor.faturamento > 0 ? melhor : null };
+}
+
+// Produtos em estoque sem saída recente (baixo giro / capital parado)
+function computeProdutosParados() {
+  const ultimaVendaPorProduto = {};
+  state.sales.forEach(v => {
+    const d = new Date(v.dataHora);
+    if (isNaN(d.getTime())) return;
+    getSaleItens(v).forEach(it => {
+      if (!ultimaVendaPorProduto[it.produtoNome] || d > ultimaVendaPorProduto[it.produtoNome]) {
+        ultimaVendaPorProduto[it.produtoNome] = d;
+      }
+    });
+  });
+  const agora = new Date();
+  return state.products
+    .filter(p => p.quantidade > 0)
+    .map(p => {
+      const ultima = ultimaVendaPorProduto[p.nome];
+      const diasParado = ultima ? Math.floor((agora - ultima) / 86400000) : null;
+      return { nome: p.nome, quantidade: p.quantidade, valorParado: p.quantidade * p.custoUnitario, diasParado };
+    })
+    .filter(p => p.diasParado === null || p.diasParado >= 15)
+    .sort((a, b) => (b.diasParado ?? 99999) - (a.diasParado ?? 99999))
+    .slice(0, 6);
+}
+
+// Ranking de clientes por valor total comprado (identifica clientes recorrentes)
+function computeTopClientes() {
+  const porCliente = {};
+  state.sales.forEach(v => {
+    const nome = (v.cliente || '').trim();
+    if (!nome) return;
+    if (!porCliente[nome]) porCliente[nome] = { nome, total: 0, compras: 0 };
+    porCliente[nome].total += v.faturamento;
+    porCliente[nome].compras += 1;
+  });
+  const lista = Object.values(porCliente).sort((a, b) => b.total - a.total);
+  return { top: lista.slice(0, 5), clientesUnicos: lista.length, recorrentes: lista.filter(c => c.compras > 1).length };
+}
+
+// ==========================================
+// HELPERS DE UI (blocos HTML reutilizáveis)
+// ==========================================
+// Junta nomes de classe ignorando vazios, para não deixar espaços sobrando no atributo class
+function cx(...classes) { return classes.filter(Boolean).join(' '); }
+
+function metricCard(label, value, extraClass = '') {
+  return `<div class="${cx('card metric', extraClass)}"><p class="label">${label}</p><p class="value">${value}</p></div>`;
+}
+
+function metricCardSub(label, value, sub, extraClass = '') {
+  return `<div class="${cx('card metric', extraClass)}"><p class="label">${label}</p><p class="value">${value}</p>${sub ? `<p style="font-size:11px;font-weight:600;color:var(--slate-500);margin:4px 0 0">${sub}</p>` : ''}</div>`;
+}
+
+function listRow(name, val, valClass = '', valStyle = '') {
+  const styleAttr = valStyle ? ` style="${valStyle}"` : '';
+  return `<div class="list-row"><span class="name">${name}</span><span class="${cx('val', valClass)}"${styleAttr}>${val}</span></div>`;
+}
+
+function listEntry({ title, sub, amount, amountSub, amountSubClass = '', onDelete, deleteTitle }) {
+  return `
+    <div class="list-entry">
+      <div><p class="title">${title}</p><p class="sub">${sub}</p></div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="text-align:right"><p class="amount">${amount}</p><p class="${cx('amount-sub', amountSubClass)}">${amountSub}</p></div>
+        ${delButton(onDelete, deleteTitle)}
+      </div>
+    </div>`;
+}
+
+function delButton(onclickCall, title) {
+  return `<button class="del-btn" title="${title}" onclick="${onclickCall}">🗑</button>`;
+}
+
+function stockBadgeHtml(quantidade) {
+  if (quantidade === 0) return '<span class="badge out">Esgotado</span>';
+  if (quantidade <= 3) return '<span class="badge low">Estoque baixo</span>';
+  return '<span class="badge ok">Ativo</span>';
+}
+
+function marginPillHtml(lucro, margem) {
+  const nivel = margem >= 25 ? 'm-green' : margem >= 10 ? 'm-amber' : 'm-red';
+  const icone = margem >= 25 ? '🟢' : margem >= 10 ? '🟡' : '🔴';
+  return `<span class="margin-pill ${nivel}">${icone} Lucro esperado: ${fmt(lucro)} (${fmtPct(margem)})</span>`;
+}
+
+// Envolve o conteúdo de um modal no overlay padrão (clique fora fecha)
+function openModal(innerHtml) {
+  $('modalRoot').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+      <div class="modal">${innerHtml}</div>
+    </div>`;
+}
+
+function closeModal() { $('modalRoot').innerHTML = ''; }
+
+// ==========================================
+// RENDER: NAV
+// ==========================================
+function renderNav() {
+  const nav = $('tabNav');
+  const tabs = ['dashboard', 'estoque', 'compras', 'vendas', 'agenda', 'analises'];
+  const tabLabels = { dashboard: 'Dashboard', estoque: 'Estoque', compras: 'Compras', vendas: 'Vendas', agenda: 'Agenda', analises: 'Análises' };
+  nav.innerHTML = tabs.map(t => `<button data-tab="${t}" class="${t===activeTab?'active':''}" style="text-transform:none">${tabLabels[t] || t}</button>`).join('');
+  nav.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => { activeTab = btn.dataset.tab; render(); });
+  });
+}
+
+// ==========================================
+// GRÁFICOS EM PIZZA (SVG, sem dependências externas)
+// ==========================================
+function polarToCartesian(cx, cy, r, angleDeg) {
+  const rad = (angleDeg) * Math.PI / 180.0;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
+function describeArc(cx, cy, r, startAngle, endAngle) {
+  const start = polarToCartesian(cx, cy, r, endAngle);
+  const end = polarToCartesian(cx, cy, r, startAngle);
+  const largeArcFlag = (endAngle - startAngle) <= 180 ? '0' : '1';
+  return `M ${cx} ${cy} L ${start.x.toFixed(2)} ${start.y.toFixed(2)} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x.toFixed(2)} ${end.y.toFixed(2)} Z`;
+}
+
+const PIE_COLORS = ['var(--slate-700)', 'var(--emerald-600)', 'var(--amber-500)', 'var(--rose-600)', 'var(--slate-400)', 'var(--emerald-700)', 'var(--amber-800)', 'var(--rose-700)'];
+
+function svgPieChart(data) {
+  const clean = data.filter(d => d.value > 0);
+  const total = clean.reduce((s, d) => s + d.value, 0);
+  const cx = 100, cy = 100, r = 90;
+
+  let slicesHtml;
+  if (!clean.length || total <= 0) {
+    slicesHtml = `<circle cx="${cx}" cy="${cy}" r="${r}" style="fill:var(--slate-100)" />`;
+  } else if (clean.length === 1) {
+    slicesHtml = `<circle cx="${cx}" cy="${cy}" r="${r}" style="fill:${PIE_COLORS[0]}" />`;
+  } else {
+    let startAngle = -90;
+    slicesHtml = clean.map((d, i) => {
+      const angle = (d.value / total) * 360;
+      const endAngle = startAngle + angle;
+      const path = describeArc(cx, cy, r, startAngle, endAngle);
+      const color = PIE_COLORS[i % PIE_COLORS.length];
+      startAngle = endAngle;
+      return `<path d="${path}" style="fill:${color}" stroke="#fff" stroke-width="2" />`;
+    }).join('');
+  }
+
+  const legend = clean.length ? clean.map((d, i) => {
+    const color = PIE_COLORS[i % PIE_COLORS.length];
+    const pct = total > 0 ? ((d.value / total) * 100).toFixed(1) : '0.0';
+    return `<div style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--slate-700);padding:4px 0">
+      <span style="display:inline-block;width:10px;height:10px;border-radius:3px;flex-shrink:0;background:${color}"></span>
+      <span style="flex:1">${escapeHtml(d.label)}</span>
+      <span style="font-weight:700;color:var(--slate-900)">${pct}%</span>
+    </div>`;
+  }).join('') : '<p class="empty-note">Sem dados suficientes ainda.</p>';
+
+  return `
+    <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+      <svg viewBox="0 0 200 200" width="170" height="170" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">${slicesHtml}</svg>
+      <div style="flex:1;min-width:180px">${legend}</div>
+    </div>`;
+}
+
+// Gráfico combinado (barras = faturamento, linha = lucro) para a série diária
+function svgTrendChart(serie) {
+  const w = 680, h = 230, padL = 8, padR = 8, padT = 14, padB = 26;
+  const innerW = w - padL - padR, innerH = h - padT - padB;
+  const maxVal = Math.max(1, ...serie.map(s => s.faturamento), ...serie.map(s => s.lucro));
+  const step = innerW / serie.length;
+  const barW = Math.max(4, step * 0.5);
+
+  const bars = serie.map((s, i) => {
+    const barH = (Math.max(s.faturamento, 0) / maxVal) * innerH;
+    const x = padL + i * step + (step - barW) / 2;
+    const y = padT + innerH - barH;
+    return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${Math.max(barH,0).toFixed(1)}" rx="3" style="fill:var(--slate-100)"><title>${s.label}: Faturamento ${fmt(s.faturamento)}</title></rect>`;
+  }).join('');
+
+  const pontos = serie.map((s, i) => ({
+    x: padL + i * step + step / 2,
+    y: padT + innerH - (Math.max(s.lucro, 0) / maxVal) * innerH
+  }));
+  const linePath = pontos.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+  const dots = pontos.map((p, i) => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" style="fill:var(--emerald-600)"><title>${serie[i].label}: Lucro ${fmt(serie[i].lucro)}</title></circle>`).join('');
+
+  const mostrarTudo = serie.length <= 10;
+  const labels = serie.map((s, i) => {
+    if (!mostrarTudo && i % 2 !== 0) return '';
+    const x = padL + i * step + step / 2;
+    return `<text x="${x.toFixed(1)}" y="${h - 8}" font-size="9" fill="var(--slate-500)" text-anchor="middle">${s.label}</text>`;
+  }).join('');
+
+  return `
+    <svg viewBox="0 0 ${w} ${h}" width="100%" height="220" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="overflow:visible">
+      ${bars}
+      <path d="${linePath}" style="fill:none;stroke:var(--emerald-600);stroke-width:2.5" />
+      ${dots}
+      ${labels}
+    </svg>
+    <div style="display:flex;gap:16px;font-size:11px;color:var(--slate-500);margin-top:10px">
+      <span><span style="display:inline-block;width:9px;height:9px;background:var(--slate-100);border:1px solid var(--slate-100);border-radius:2px;margin-right:5px;vertical-align:middle"></span>Faturamento</span>
+      <span><span style="display:inline-block;width:9px;height:9px;background:var(--emerald-600);border-radius:50%;margin-right:5px;vertical-align:middle"></span>Lucro</span>
+    </div>`;
+}
+
+// Barra horizontal simples (usada em rankings: curva ABC, top produtos, melhor dia da semana)
+function svgBarRow(label, value, maxValue, valueStr, colorVar = 'var(--slate-900)') {
+  const pct = maxValue > 0 ? Math.max((value / maxValue) * 100, 2) : 2;
+  return `
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <span style="font-weight:600;color:var(--slate-800)">${escapeHtml(label)}</span>
+        <span style="font-weight:700;color:var(--slate-900)">${valueStr}</span>
+      </div>
+      <div style="height:8px;border-radius:999px;background:var(--slate-100);overflow:hidden">
+        <div style="height:100%;width:${pct.toFixed(1)}%;background:${colorVar};border-radius:999px"></div>
+      </div>
+    </div>`;
+}
+
+// ==========================================
+// RENDER: DASHBOARD
+// ==========================================
+function renderDashboard() {
+  const m = computeMetrics();
+
+  if (state.products.length === 0) {
+    return `
+      <div class="page-head">
+        <span class="eyebrow">Geral</span>
+        <h1>Painel Executivo</h1>
+        <p>Acompanhamento automatizado de desempenho do negócio.</p>
+      </div>
+      <div class="card" style="padding:40px 24px;text-align:center">
+        <p style="font-size:15px;font-weight:700;color:var(--slate-900);margin:0 0 6px">Nenhum produto cadastrado ainda</p>
+        <p style="font-size:13px;color:var(--slate-500);margin:0 0 20px">Comece cadastrando seu primeiro produto na aba Estoque, depois registre uma compra para abastecer o estoque.</p>
+        <button class="btn-primary" onclick="activeTab='estoque'; render();">Ir para Estoque</button>
+      </div>`;
+  }
+
+  let alertHtml = '';
+  if (m.estoqueBaixo.length > 0) {
+    alertHtml = `<div class="alert-box"><span>⚠️</span><div><strong>Estoque baixo:</strong> ${m.estoqueBaixo.map(p => `${escapeHtml(p.nome)} (${p.quantidade} un)`).join(', ')}</div></div>`;
+  }
+
+  const metricsHtml = `
+    <div class="metrics-grid">
+      ${metricCard('Valor Investido', fmt(m.totalInvestimento))}
+      ${metricCard('Valor em Estoque', fmt(m.totalValorEstoque))}
+      ${metricCard('Faturamento', fmt(m.totalFaturamento))}
+      ${metricCard('Lucro Bruto', fmt(m.totalLucroBruto))}
+      ${metricCard('Lucro Líquido', fmt(m.totalLucroLiquido), `highlight ${m.totalLucroLiquido>=0?'positive':'negative'}`)}
+      ${metricCard('ROI (Retorno)', m.roi.toFixed(1)+'%', m.roi>=0?'positive':'negative')}
+      ${metricCard('Qtd de Produtos', state.products.reduce((a,p)=>a+p.quantidade,0)+' un')}
+      ${metricCard('Ticket Médio', fmt(m.ticketMedio))}
+    </div>`;
+
+  const listsHtml = `
+    <div class="lists-grid">
+      <div class="card list-card">
+        <h3>Produtos Mais Vendidos</h3>
+        ${m.rankVendidos.length ? m.rankVendidos.map(r => listRow(escapeHtml(r.nome), r.val)).join('') : '<p class="empty-note">Nenhuma venda contabilizada.</p>'}
+      </div>
+      <div class="card list-card">
+        <h3>Produtos Mais Lucrativos</h3>
+        ${m.rankLucrativos.length ? m.rankLucrativos.map(r => listRow(escapeHtml(r.nome), r.val, 'green')).join('') : '<p class="empty-note">Nenhuma margem gerada.</p>'}
+      </div>
+      <div class="card list-card">
+        <h3>Últimas Transações</h3>
+        ${(() => {
+          const recentes = [...state.sales].sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora)).slice(0, 3);
+          return recentes.length
+            ? recentes.map(s => {
+                const itens = getSaleItens(s);
+                const nomeLinha = itens.length > 1 ? `${escapeHtml(itens[0].produtoNome)} + ${itens.length - 1} produto(s)` : escapeHtml(itens[0].produtoNome);
+                return listRow(`${nomeLinha}<br><span style="font-size:10px;color:var(--slate-500);font-weight:400">${escapeHtml(s.cliente||'Final')} • ${formatDataHora(s.dataHora)}</span>`, fmt(s.faturamento), '', 'color:var(--slate-950)');
+              }).join('')
+            : '<p class="empty-note">Sem registros de saída.</p>';
+        })()}
+      </div>
+    </div>`;
+
+  const paymentsHtml = `
+    <div class="lists-grid" style="margin-top:20px">
+      <div class="card list-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <h3 style="margin:0">Recebido por Forma de Pagamento</h3>
+          <button type="button" class="margin-btn" onclick="openRevisarPagamentosModal('dinheiro')" title="Revisar vendas marcadas automaticamente como Dinheiro">✎ Revisar</button>
+        </div>
+        ${FORMAS_PAGAMENTO_VENDA.map(f => listRow(f, fmt(m.recebidoPorForma[f]), 'green')).join('')}
+      </div>
+      <div class="card list-card">
+        <h3>Gasto por Forma de Pagamento</h3>
+        ${m.gastoPorForma.length ? m.gastoPorForma.map(g => listRow(g.forma, fmt(g.valor))).join('') : '<p class="empty-note">Nenhuma compra registrada.</p>'}
+      </div>
+    </div>`;
+
+  return `
+    <div class="row-between">
+      <div class="page-head">
+        <span class="eyebrow">Geral</span>
+        <h1>Painel Executivo</h1>
+        <p>Resumo rápido do seu negócio para o dia a dia.</p>
+      </div>
+      <button class="btn-secondary" onclick="activeTab='analises'; render();">📊 Ver Análises Completas</button>
+    </div>
+    ${alertHtml}
+    ${metricsHtml}
+    ${listsHtml}
+    ${paymentsHtml}
+  `;
+}
+
+// ==========================================
+// RENDER: ANÁLISES (dados detalhados de negócio: períodos, campeões, gráficos)
+// ==========================================
+function renderAnalises() {
+  const m = computeMetrics();
+  const v2 = computeDashboardV2();
+
+  if (state.products.length === 0) {
+    return `
+      <div class="page-head">
+        <span class="eyebrow">Negócio</span>
+        <h1>Análises Completas</h1>
+        <p>Métricas detalhadas por período, campeões de venda e gráficos.</p>
+      </div>
+      <div class="card" style="padding:40px 24px;text-align:center">
+        <p style="font-size:15px;font-weight:700;color:var(--slate-900);margin:0 0 6px">Ainda não há dados suficientes</p>
+        <p style="font-size:13px;color:var(--slate-500);margin:0">Cadastre produtos e registre vendas para ver as análises completas aqui.</p>
+      </div>`;
+  }
+
+  const comp = computeComparativos();
+  const abc = computeCurvaABC();
+  const diaSemana = computeMelhorDiaSemana();
+  const parados = computeProdutosParados();
+  const clientes = computeTopClientes();
+
+  const v2CardsHtml = `
+    <div class="metrics-grid">
+      ${metricCard('Faturamento Hoje', fmt(v2.hoje.faturamento))}
+      ${metricCard('Lucro Hoje', fmt(v2.hoje.lucro), v2.hoje.lucro>=0?'positive':'negative')}
+      ${metricCard('Produtos Vendidos', v2.totalUnidadesVendidas+' un')}
+      ${metricCard('Ticket Médio', fmt(v2.ticketMedio))}
+      ${metricCard('Lucro Médio por Venda', fmt(v2.lucroMedio), v2.lucroMedio>=0?'positive':'negative')}
+      ${metricCard('Capital em Estoque', fmt(v2.capitalEstoque))}
+      ${metricCardSub('Patrimônio Total', fmt(v2.patrimonioTotal), 'Estoque + lucro acumulado', 'highlight positive')}
+      ${metricCardSub('Forma de Pagamento Mais Usada', v2.formaTop ? escapeHtml(v2.formaTop[0]) : '—', v2.formaTop ? v2.formaTop[1]+' venda(s)' : 'Sem vendas ainda')}
+    </div>`;
+
+  // Cards de período com comparação percentual vs período anterior (essencial em qualquer dashboard de e-commerce)
+  const comparativosHtml = `
+    <div class="lists-grid" style="margin-bottom:20px">
+      <div class="card metric">
+        <p class="label">Semana Atual</p>
+        <p class="value">${fmt(comp.semana.atual.faturamento)}</p>
+        <p style="font-size:11px;color:var(--slate-500);margin:2px 0 6px">Lucro: ${fmt(comp.semana.atual.lucro)} • ${comp.semana.atual.n} venda(s)</p>
+        ${growthBadge(comp.semana.variacao)}
+      </div>
+      <div class="card metric">
+        <p class="label">Mês Atual</p>
+        <p class="value">${fmt(comp.mes.atual.faturamento)}</p>
+        <p style="font-size:11px;color:var(--slate-500);margin:2px 0 6px">Lucro: ${fmt(comp.mes.atual.lucro)} • ${comp.mes.atual.n} venda(s)</p>
+        ${growthBadge(comp.mes.variacao)}
+      </div>
+      <div class="card metric">
+        <p class="label">Ano Atual</p>
+        <p class="value">${fmt(comp.ano.atual.faturamento)}</p>
+        <p style="font-size:11px;color:var(--slate-500);margin:2px 0 6px">Lucro: ${fmt(comp.ano.atual.lucro)} • ${comp.ano.atual.n} venda(s)</p>
+        ${growthBadge(comp.ano.variacao)}
+      </div>
+    </div>`;
+
+  // Gráfico de evolução (14 dias): faturamento em barras + lucro em linha
+  const trendHtml = `
+    <div class="card list-card" style="margin-bottom:20px">
+      <h3>Evolução de Faturamento e Lucro (últimos 14 dias)</h3>
+      ${svgTrendChart(v2.serie)}
+    </div>`;
+
+  const chartsHtml = `
+    <div class="lists-grid" style="margin-bottom:20px">
+      <div class="card list-card">
+        <h3>Vendas por Categoria (unidades)</h3>
+        ${svgPieChart(v2.catBreakdown)}
+      </div>
+      <div class="card list-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <h3 style="margin:0">Faturamento por Forma de Pagamento</h3>
+          <button type="button" class="margin-btn" onclick="openRevisarPagamentosModal('dinheiro')" title="Revisar vendas marcadas automaticamente como Dinheiro">✎ Revisar</button>
+        </div>
+        ${svgPieChart(FORMAS_PAGAMENTO_VENDA.map(f => ({ label: f, value: m.recebidoPorForma[f] || 0 })))}
+      </div>
+    </div>`;
+
+  // Curva ABC: top 8 produtos por participação no faturamento, com classificação A/B/C
+  const abcTop = abc.classificados.slice(0, 8);
+  const abcMax = abcTop.length ? abcTop[0].valor : 0;
+  const abcCoresClasse = { A: 'var(--emerald-600)', B: 'var(--amber-500)', C: 'var(--slate-400)' };
+  const abcHtml = `
+    <div class="card list-card">
+      <h3>Curva ABC — Produtos por Faturamento</h3>
+      <p style="font-size:11px;color:var(--slate-500);margin:-6px 0 12px">Classe A concentra ~80% do faturamento, B até 95%, C o restante. Foque estoque e reposição na classe A.</p>
+      ${abcTop.length ? abcTop.map(c => svgBarRow(`${c.nome} · Classe ${c.classe}`, c.valor, abcMax, fmt(c.valor), abcCoresClasse[c.classe])).join('') : '<p class="empty-note">Sem vendas suficientes ainda.</p>'}
+      ${abcTop.length ? `<p style="font-size:11px;color:var(--slate-500);margin:4px 0 0">Distribuição: <strong style="color:var(--emerald-700)">${abc.resumo.A} classe A</strong> • <strong style="color:var(--amber-800)">${abc.resumo.B} classe B</strong> • <strong style="color:var(--slate-500)">${abc.resumo.C} classe C</strong></p>` : ''}
+    </div>`;
+
+  // Sazonalidade: melhor dia da semana para vender
+  const diaMax = Math.max(1, ...diaSemana.porDia.map(d => d.faturamento));
+  const sazonalidadeHtml = `
+    <div class="card list-card">
+      <h3>Faturamento por Dia da Semana</h3>
+      ${diaSemana.melhor ? `<p style="font-size:11px;color:var(--slate-500);margin:-6px 0 12px">Melhor dia: <strong style="color:var(--emerald-700)">${diaSemana.melhor.nome}</strong> (${fmt(diaSemana.melhor.faturamento)} em ${diaSemana.melhor.n} venda(s))</p>` : ''}
+      ${diaSemana.melhor ? diaSemana.porDia.map(d => svgBarRow(d.nome, d.faturamento, diaMax, fmt(d.faturamento), d.nome===diaSemana.melhor.nome?'var(--emerald-600)':'var(--slate-700)')).join('') : '<p class="empty-note">Sem vendas suficientes ainda.</p>'}
+    </div>`;
+
+  // Giro de estoque: produtos parados (capital empatado sem venda recente)
+  const paradosHtml = `
+    <div class="card list-card">
+      <h3>Produtos Parados (baixo giro)</h3>
+      <p style="font-size:11px;color:var(--slate-500);margin:-6px 0 12px">Itens em estoque sem venda há 15+ dias (ou nunca vendidos). Considere promoção ou revisão de preço.</p>
+      ${parados.length ? parados.map(p => listRow(
+        `${escapeHtml(p.nome)}<br><span style="font-size:10px;color:var(--slate-500);font-weight:400">${p.diasParado===null?'Nunca vendido':`${p.diasParado} dias sem venda`} • ${p.quantidade} un em estoque</span>`,
+        fmt(p.valorParado)
+      )).join('') : '<p class="empty-note">Nenhum produto parado — bom giro de estoque! 🎉</p>'}
+    </div>`;
+
+  // Top clientes (só aparece se houver nome de cliente cadastrado nas vendas)
+  const clientesHtml = clientes.top.length ? `
+    <div class="card list-card">
+      <h3>Top Clientes</h3>
+      <p style="font-size:11px;color:var(--slate-500);margin:-6px 0 12px">${clientes.clientesUnicos} cliente(s) identificado(s) • ${clientes.recorrentes} recorrente(s) (2+ compras)</p>
+      ${clientes.top.map(c => listRow(`${escapeHtml(c.nome)}<br><span style="font-size:10px;color:var(--slate-500);font-weight:400">${c.compras} compra(s)</span>`, fmt(c.total), 'green')).join('')}
+    </div>` : '';
+
+  return `
+    <div class="page-head">
+      <span class="eyebrow">Negócio</span>
+      <h1>Análises Completas</h1>
+      <p>Métricas detalhadas por período, tendências, curva ABC, sazonalidade e giro de estoque.</p>
+    </div>
+    ${v2CardsHtml}
+    ${comparativosHtml}
+    ${trendHtml}
+    ${chartsHtml}
+    <div class="lists-grid" style="margin-bottom:20px">
+      ${abcHtml}
+      ${sazonalidadeHtml}
+    </div>
+    <div class="lists-grid">
+      ${paradosHtml}
+      ${clientesHtml}
+    </div>
+  `;
+}
+
+// ==========================================
+// RENDER: ESTOQUE
+// ==========================================
+function renderEstoque() {
+  const termo = (state.estoqueBusca || '').trim().toLowerCase();
+  const listaProdutos = termo
+    ? state.products.filter(p => p.nome.toLowerCase().includes(termo))
+    : state.products;
+
+  const rows = listaProdutos.map(p => {
+    const { lucro: lucroEsperado, margem: margemEsperada } = calcLucroMargem(p.custoUnitario, p.precoSugerido);
+    return `<tr>
+      <td><div class="prod-cell"><div class="thumb"></div><span>${escapeHtml(p.nome)}</span></div></td>
+      <td>${p.quantidade} un</td>
+      <td>${fmt(p.custoUnitario)}</td>
+      <td>${fmt(p.precoSugerido)}</td>
+      <td>${marginPillHtml(lucroEsperado, margemEsperada)}</td>
+      <td style="color:var(--emerald-600);font-weight:700">${fmt(p.quantidade * p.custoUnitario)}</td>
+      <td>${stockBadgeHtml(p.quantidade)}</td>
+      <td>${delButton(`deleteProduct(${p.id})`, 'Excluir produto')}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="row-between">
+      <div>
+        <h1 style="font-size:22px;font-weight:700;margin:0;color:var(--slate-950)">Estoque Geral</h1>
+        <p style="font-size:13px;color:var(--slate-500);margin:4px 0 0">Mapeamento de produtos cadastrados. O estoque é atualizado automaticamente.</p>
+      </div>
+      <button class="btn-primary" onclick="openProductModal()">+ Novo Produto</button>
+    </div>
+    <input class="field" style="max-width:320px" id="estoqueSearch" placeholder="🔎 Pesquisar produto pelo nome..." value="${escapeHtml(state.estoqueBusca || '')}" oninput="filterEstoque(this.value)" />
+    <div class="card" style="overflow-x:auto">
+      <table>
+        <thead><tr><th>Produto</th><th>Estoque</th><th>Custo Médio</th><th>Sugerido</th><th>Lucro Esperado</th><th>Valor em Estoque</th><th>Status</th><th></th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="8" class="empty-note">${termo ? 'Nenhum produto encontrado.' : 'Nenhum produto cadastrado.'}</td></tr>`}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function filterEstoque(valor) {
+  state.estoqueBusca = valor;
+  render();
+  const input = $('estoqueSearch');
+  if (input) { input.focus(); input.setSelectionRange(input.value.length, input.value.length); }
+}
+
+function deleteProduct(id) {
+  const p = getProduct(id);
+  if (!p) return;
+  const temHistorico = state.purchases.some(x => x.produtoId === id) || state.sales.some(x => x.produtoId === id);
+  const msg = temHistorico
+    ? `Excluir "${p.nome}"? O histórico de compras e vendas desse produto será mantido, mas ele sairá do estoque.`
+    : `Excluir "${p.nome}"? Essa ação não pode ser desfeita.`;
+  if (!confirm(msg)) return;
+  state.products = state.products.filter(x => x.id !== id);
+  persist();
+  render();
+  showToast(`Produto "${p.nome}" excluído.`);
+}
+
+// ==========================================
+// RENDER: COMPRAS
+// ==========================================
+// Gera uma chave curta e segura (para usar em atributos onclick) a partir de um texto livre
+function slugKey(str) { return String(str).replace(/[^a-zA-Z0-9]+/g, '_').slice(0, 60) || 'x'; }
+
+function viewToggle(mode, onProduto, onLista) {
+  return `
+    <div style="display:flex;gap:6px;margin-bottom:16px">
+      <button type="button" class="margin-btn ${mode === 'produto' ? 'active' : ''}" onclick="${onProduto}">📦 Agrupado por Produto</button>
+      <button type="button" class="margin-btn ${mode === 'lista' ? 'active' : ''}" onclick="${onLista}">🕓 Lista Cronológica</button>
+    </div>`;
+}
+
+function groupPurchasesByProduct() {
+  const map = {};
+  state.purchases.forEach(pur => {
+    const key = pur.produtoId != null ? ('p' + pur.produtoId) : ('s' + slugKey(pur.produtoNome));
+    if (!map[key]) map[key] = { key, nome: pur.produtoNome, itens: [], totalQtd: 0, totalGasto: 0 };
+    const g = map[key];
+    g.itens.push(pur);
+    g.totalQtd += pur.qtd;
+    g.totalGasto += pur.custoTotal;
+  });
+  return Object.values(map).map(g => {
+    g.itens.sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora));
+    return g;
+  }).sort((a, b) => new Date(b.itens[0].dataHora) - new Date(a.itens[0].dataHora));
+}
+
+function toggleCompraGroup(key) {
+  if (collapsedCompraGroups.has(key)) collapsedCompraGroups.delete(key); else collapsedCompraGroups.add(key);
+  render();
+}
+
+function setComprasView(mode) { comprasViewMode = mode; render(); }
+
+function renderComprasAgrupadas() {
+  const grupos = groupPurchasesByProduct();
+  if (!grupos.length) return '<div class="card"><p class="empty-note" style="padding:20px">Nenhuma compra registrada.</p></div>';
+
+  return grupos.map(g => {
+    const isOpen = !collapsedCompraGroups.has(g.key);
+    const rows = g.itens.map(pur => `
+      <div class="agenda-event-row" style="cursor:pointer" onclick="openPurchaseModal({editId:${pur.id}})">
+        <div>
+          <p style="margin:0;font-weight:600;color:var(--slate-900)">+${pur.qtd} un • ${formatDataHora(pur.dataHora)}</p>
+          <p style="margin:2px 0 0;font-weight:500;color:var(--slate-500)">Unitário: <span style="color:var(--slate-900);font-weight:700">${fmt(pur.valorUnitario)}</span> • Fornecedor: <span style="color:var(--slate-700);font-weight:600">${escapeHtml(pur.fornecedor || 'Não informado')}</span> • <span style="color:var(--slate-700);font-weight:600">${escapeHtml(pur.formaPagamento || 'Outro')}</span></p>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+          <p style="margin:0;font-weight:700;color:var(--slate-900)">${fmt(pur.custoTotal)}</p>
+          ${delButton(`event.stopPropagation(); deletePurchase(${pur.id})`, 'Excluir compra')}
+        </div>
+      </div>`).join('');
+
+    return `
+      <div class="card" style="margin-bottom:12px;overflow:hidden">
+        <div class="list-entry" style="cursor:pointer" onclick="toggleCompraGroup('${g.key}')">
+          <div><p class="title">${isOpen ? '▾' : '▸'} ${escapeHtml(g.nome)}</p><p class="sub">${g.itens.length} compra(s) • ${g.totalQtd} un no total</p></div>
+          <div style="text-align:right"><p class="amount">${fmt(g.totalGasto)}</p><p class="amount-sub">Investido</p></div>
+        </div>
+        ${isOpen ? `<div style="border-top:1px solid var(--slate-100);padding:2px 20px">${rows}</div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function renderComprasLista() {
+  const ordenadas = [...state.purchases].sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora));
+  const rows = ordenadas.map(pur => listEntry({
+    title: escapeHtml(pur.produtoNome),
+    sub: `+${pur.qtd} un • Fornecedor: ${escapeHtml(pur.fornecedor || 'Não informado')} • ${escapeHtml(pur.formaPagamento || 'Outro')} • ${formatDataHora(pur.dataHora)}`,
+    amount: fmt(pur.custoTotal),
+    amountSub: `Unitário: ${fmt(pur.valorUnitario)}`,
+    onDelete: `deletePurchase(${pur.id})`,
+    deleteTitle: 'Excluir compra'
+  })).join('');
+  return `<div class="card">${rows || '<p class="empty-note" style="padding:20px">Nenhuma compra registrada.</p>'}</div>`;
+}
+
+function renderCompras() {
+  return `
+    <div class="row-between">
+      <div>
+        <h1 style="font-size:22px;font-weight:700;margin:0;color:var(--slate-950)">Compras de Mercadorias</h1>
+        <p style="font-size:13px;color:var(--slate-500);margin:4px 0 0">Abasteça o seu estoque. Novas compras recalculam custos automaticamente.</p>
+      </div>
+      <button class="btn-primary" onclick="openPurchaseModal()">+ Registrar Compra</button>
+    </div>
+    ${viewToggle(comprasViewMode, "setComprasView('produto')", "setComprasView('lista')")}
+    ${comprasViewMode === 'produto' ? renderComprasAgrupadas() : renderComprasLista()}
+  `;
+}
+
+function deletePurchase(id) {
+  const pur = state.purchases.find(x => x.id === id);
+  if (!pur) return;
+  if (!confirm(`Excluir esta compra de "${pur.produtoNome}" (${pur.qtd} un)? O estoque e o custo médio deste produto serão recalculados removendo esta entrada. Essa ação não pode ser desfeita.`)) return;
+
+  const idx = getProductIndex(pur.produtoId);
+  if (idx !== -1) removePurchaseFromStock(idx, pur.qtd, pur.custoTotal);
+
+  state.purchases = state.purchases.filter(x => x.id !== id);
+  persist();
+  render();
+  showToast('Compra excluída e estoque recalculado.');
+}
+
+// ==========================================
+// RENDER: VENDAS
+// ==========================================
+// Agrupa os itens de todas as vendas por produto, trazendo para cada linha o
+// preço de compra (custo unitário no momento da venda) e o preço de venda.
+function groupSalesByProduct() {
+  const map = {};
+  state.sales.forEach(s => {
+    getSaleItens(s).forEach(it => {
+      const key = it.produtoId != null ? ('p' + it.produtoId) : ('s' + slugKey(it.produtoNome));
+      if (!map[key]) map[key] = { key, nome: it.produtoNome, itens: [], totalQtd: 0, totalFaturado: 0, totalLucro: 0, totalCusto: 0 };
+      const g = map[key];
+      const subtotal = it.subtotal != null ? it.subtotal : (it.qtd * it.precoUnitario);
+      const custoTotalItem = it.custoTotalItem != null ? it.custoTotalItem : (it.qtd * (it.custoUnitario || 0));
+      g.itens.push({
+        saleId: s.id, dataHora: s.dataHora, cliente: s.cliente,
+        qtd: it.qtd, precoCompra: it.custoUnitario || 0, precoVenda: it.precoUnitario || 0,
+        subtotal, lucro: it.lucroItem != null ? it.lucroItem : (subtotal - custoTotalItem)
+      });
+      g.totalQtd += it.qtd;
+      g.totalFaturado += subtotal;
+      g.totalCusto += custoTotalItem;
+      g.totalLucro += (it.lucroItem != null ? it.lucroItem : (subtotal - custoTotalItem));
+    });
+  });
+  return Object.values(map).map(g => {
+    g.itens.sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora));
+    return g;
+  }).sort((a, b) => new Date(b.itens[0].dataHora) - new Date(a.itens[0].dataHora));
+}
+
+function toggleVendaGroup(key) {
+  if (collapsedVendaGroups.has(key)) collapsedVendaGroups.delete(key); else collapsedVendaGroups.add(key);
+  render();
+}
+
+function setVendasView(mode) { vendasViewMode = mode; render(); }
+
+function renderVendasAgrupadas() {
+  const grupos = groupSalesByProduct();
+  if (!grupos.length) return '<div class="card"><p class="empty-note" style="padding:20px">Nenhuma venda registrada.</p></div>';
+
+  return grupos.map(g => {
+    const isOpen = !collapsedVendaGroups.has(g.key);
+    const margem = g.totalCusto > 0 ? (g.totalLucro / g.totalCusto) * 100 : 0;
+    const rows = g.itens.map(it => `
+      <div class="agenda-event-row" style="cursor:pointer" onclick="openSaleDetailsModal(${it.saleId})">
+        <div>
+          <p style="margin:0;font-weight:600;color:var(--slate-900)">${it.qtd}x • ${formatDataHora(it.dataHora)}</p>
+          <p style="margin:2px 0 0;font-weight:500;color:var(--slate-500)">Compra: <span style="color:var(--slate-800);font-weight:700">${fmt(it.precoCompra)}</span> → Venda: <span style="color:var(--emerald-700);font-weight:700">${fmt(it.precoVenda)}</span> • Cliente: <span style="color:var(--slate-700);font-weight:600">${escapeHtml(it.cliente || 'Final')}</span></p>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <p style="margin:0;font-weight:700;color:var(--slate-900)">${fmt(it.subtotal)}</p>
+          <p style="margin:2px 0 0;font-weight:700;color:var(--emerald-700)">+${fmt(it.lucro)}</p>
+        </div>
+      </div>`).join('');
+
+    return `
+      <div class="card" style="margin-bottom:12px;overflow:hidden">
+        <div class="list-entry" style="cursor:pointer" onclick="toggleVendaGroup('${g.key}')">
+          <div><p class="title">${isOpen ? '▾' : '▸'} ${escapeHtml(g.nome)}</p><p class="sub">${g.itens.length} venda(s) • ${g.totalQtd} un vendidas</p></div>
+          <div style="text-align:right"><p class="amount">${fmt(g.totalFaturado)}</p><p class="amount-sub green">Lucro: +${fmt(g.totalLucro)} · Margem: ${fmtPct(margem)}</p></div>
+        </div>
+        ${isOpen ? `<div style="border-top:1px solid var(--slate-100);padding:2px 20px">${rows}</div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function renderVendasLista() {
+  const ordenadas = [...state.sales].sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora));
+  const rows = ordenadas.map(s => {
+    const isTroca = s.tipo === 'troca';
+    const itens = getSaleItens(s);
+    const totalUnidades = itens.reduce((acc, it) => acc + it.qtd, 0);
+    const margem = s.custoTotal > 0 ? (s.lucro / s.custoTotal) * 100 : 0;
+    const obs = getSaleObs(s);
+
+    const titulo = isTroca
+      ? `${escapeHtml(itens[0].produtoNome)} → Troca por ${escapeHtml(s.trocaProdutoNome)}${s.trocaDinheiro>0?' + '+fmt(s.trocaDinheiro):''}`
+      : (itens.length > 1 ? `Venda: ${itens.length} produtos (${totalUnidades} un)` : escapeHtml(itens[0].produtoNome));
+
+    const sub = isTroca
+      ? `-${totalUnidades} un • ${formatDataHora(s.dataHora)}${obs ? ' • Obs: '+escapeHtml(obs) : ''}`
+      : `Cliente: ${escapeHtml(s.cliente || 'Final')} • ${escapeHtml(s.formaPagamento || '')} • ${formatDataHora(s.dataHora)}`;
+
+    const itensListHtml = itens.map(it => `
+      <div style="display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--slate-500);padding:5px 0">
+        <span>${it.qtd}x ${escapeHtml(it.produtoNome)}${it.desconto>0?` <span style="color:var(--rose-700);font-weight:600">(desc. ${fmt(it.desconto)})</span>`:''}</span>
+        <span style="white-space:nowrap;font-weight:600;color:var(--slate-700)">${fmt(it.subtotal != null ? it.subtotal : (it.qtd*it.precoUnitario))}</span>
+      </div>`).join('');
+
+    return `
+      <div class="list-entry" style="flex-direction:column;align-items:stretch;gap:10px;cursor:pointer" onclick="openSaleDetailsModal(${s.id})">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+          <div><p class="title">Venda #${getSaleNumero(s)} · ${titulo}</p><p class="sub">${sub}</p></div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="text-align:right">
+              <p class="amount">${fmt(s.faturamento)}</p>
+              <p class="amount-sub green">Lucro: +${fmt(s.lucro)} · Margem: ${fmtPct(margem)}</p>
+            </div>
+            ${delButton(`event.stopPropagation(); cancelSale(${s.id})`, 'Cancelar venda')}
+          </div>
+        </div>
+        ${itens.length > 1 ? `<div style="background:var(--slate-50);border:1px solid var(--slate-100);border-radius:12px;padding:8px 14px">${itensListHtml}</div>` : ''}
+      </div>`;
+  }).join('');
+  return `<div class="card">${rows || '<p class="empty-note" style="padding:20px">Nenhuma venda registrada.</p>'}</div>`;
+}
+
+function renderVendas() {
+  return `
+    <div class="row-between">
+      <div>
+        <h1 style="font-size:22px;font-weight:700;margin:0;color:var(--slate-950)">Histórico de Vendas</h1>
+        <p style="font-size:13px;color:var(--slate-500);margin:4px 0 0">Clique em um produto para ver todas as vendas dele, ou em uma venda para editar.</p>
+      </div>
+      <button class="btn-primary" onclick="openSaleModal()">+ Nova Venda (Carrinho)</button>
+    </div>
+    ${viewToggle(vendasViewMode, "setVendasView('produto')", "setVendasView('lista')")}
+    ${vendasViewMode === 'produto' ? renderVendasAgrupadas() : renderVendasLista()}
+  `;
+}
+
+// Cancela uma venda: devolve o estoque de todos os itens e remove o registro.
+// Pode ser chamada tanto pelo ícone rápido do histórico quanto pela tela de detalhes.
+function cancelSale(id) {
+  const s = state.sales.find(x => x.id === id);
+  if (!s) return;
+  const itens = getSaleItens(s);
+  const resumo = itens.map(it => `${it.qtd}x ${it.produtoNome}`).join(', ');
+  if (!confirm(`Cancelar esta venda (${resumo})? O estoque de todos os produtos será devolvido. Essa ação não pode ser desfeita.`)) return;
+
+  itens.forEach(it => {
+    const idx = getProductIndex(it.produtoId);
+    if (idx !== -1) returnStock(idx, it.qtd);
+  });
+
+  state.sales = state.sales.filter(x => x.id !== id);
+  persist();
+  closeModal();
+  render();
+  showToast('Venda cancelada e estoque devolvido.');
+}
+
+// ==========================================
+// DESPESAS (novo, para a Agenda)
+// ==========================================
+const CATEGORIAS_DESPESA = ['Aluguel', 'Transporte', 'Embalagem', 'Marketing', 'Taxas/Impostos', 'Manutenção', 'Outro'];
+
+function openExpenseModal(opts = {}) {
+  const { editId = null, defaultDate = null } = opts;
+  const isEdit = !!editId;
+  const prefill = isEdit ? state.expenses.find(x => x.id === editId) : null;
+  const dataHoraDefault = prefill ? new Date(prefill.dataHora) : (defaultDate ? new Date(defaultDate) : new Date());
+
+  openModal(`
+        <h3>${isEdit ? 'Editar Despesa' : 'Nova Despesa'}</h3>
+        <form id="expenseForm">
+          <input class="field" required id="ef_desc" placeholder="Descrição (ex: Aluguel do galpão)" value="${prefill ? escapeHtml(prefill.descricao) : ''}" />
+          <div class="grid2">
+            <input class="field" type="number" step="0.01" required id="ef_valor" placeholder="Valor (R$)" value="${prefill ? prefill.valor : ''}" />
+            <select class="field" id="ef_cat">
+              ${CATEGORIAS_DESPESA.map(c => `<option value="${c}" ${prefill && prefill.categoria === c ? 'selected' : ''}>${c}</option>`).join('')}
+            </select>
+          </div>
+          ${dataHoraLabel('Data e hora da despesa', 'ef_data', 'ef_hora')}
+          <div class="grid2">
+            <input class="field" type="date" required id="ef_data" value="${nowDateInputValue(dataHoraDefault)}" />
+            <input class="field" type="time" required id="ef_hora" value="${nowTimeInputValue(dataHoraDefault)}" />
+          </div>
+          <input class="field" id="ef_obs" placeholder="Observações (opcional)" value="${prefill ? escapeHtml(prefill.obs || '') : ''}" />
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" onclick="closeModal()">Cancelar</button>
+            <button type="submit" class="btn-primary" style="flex:1">${isEdit ? 'Salvar Alterações' : 'Salvar Despesa'}</button>
+          </div>
+        </form>`);
+
+  $('expenseForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const descricao = $('ef_desc').value.trim();
+    const valor = parseFloat($('ef_valor').value);
+    const categoria = $('ef_cat').value;
+    const obs = $('ef_obs').value.trim();
+    const dataHora = combineDateHora($('ef_data').value, $('ef_hora').value);
+    if (!descricao || !valor) return;
+
+    if (isEdit) {
+      const idx = state.expenses.findIndex(x => x.id === editId);
+      if (idx !== -1) state.expenses[idx] = { id: editId, descricao, valor, categoria, obs, dataHora };
+    } else {
+      state.expenses.unshift({ id: Date.now(), descricao, valor, categoria, obs, dataHora });
+    }
+    persist(); closeModal(); render();
+    showToast(isEdit ? 'Despesa atualizada.' : 'Despesa registrada.');
+  });
+}
+
+function deleteExpense(id) {
+  const x = state.expenses.find(e => e.id === id);
+  if (!x) return;
+  if (!confirm(`Excluir a despesa "${x.descricao}" (${fmt(x.valor)})? Essa ação não pode ser desfeita.`)) return;
+  state.expenses = state.expenses.filter(e => e.id !== id);
+  persist(); closeModal(); render();
+  showToast('Despesa excluída.');
+}
+
+// ==========================================
+// ENTREGAS (novo, para a Agenda)
+// ==========================================
+const STATUS_ENTREGA = ['Pendente', 'A caminho', 'Entregue'];
+
+function openDeliveryModal(opts = {}) {
+  const { editId = null, defaultDate = null } = opts;
+  const isEdit = !!editId;
+  const prefill = isEdit ? state.deliveries.find(x => x.id === editId) : null;
+  const dataHoraDefault = prefill ? new Date(prefill.dataHora) : (defaultDate ? new Date(defaultDate) : new Date());
+
+  openModal(`
+        <h3>${isEdit ? 'Editar Entrega' : 'Nova Entrega'}</h3>
+        <form id="deliveryForm">
+          <input class="field" required id="df_item" placeholder="O que será entregue (produto/pedido)" value="${prefill ? escapeHtml(prefill.item) : ''}" />
+          <input class="field" id="df_cliente" placeholder="Cliente" value="${prefill ? escapeHtml(prefill.cliente || '') : ''}" />
+          <input class="field" id="df_endereco" placeholder="Endereço (opcional)" value="${prefill ? escapeHtml(prefill.endereco || '') : ''}" />
+          <select class="field" id="df_status">
+            ${STATUS_ENTREGA.map(s => `<option value="${s}" ${prefill && prefill.status === s ? 'selected' : (!prefill && s==='Pendente' ? 'selected' : '')}>${s}</option>`).join('')}
+          </select>
+          ${dataHoraLabel('Data e hora prevista', 'df_data', 'df_hora')}
+          <div class="grid2">
+            <input class="field" type="date" required id="df_data" value="${nowDateInputValue(dataHoraDefault)}" />
+            <input class="field" type="time" required id="df_hora" value="${nowTimeInputValue(dataHoraDefault)}" />
+          </div>
+          <input class="field" id="df_obs" placeholder="Observações (opcional)" value="${prefill ? escapeHtml(prefill.obs || '') : ''}" />
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" onclick="closeModal()">Cancelar</button>
+            <button type="submit" class="btn-primary" style="flex:1">${isEdit ? 'Salvar Alterações' : 'Salvar Entrega'}</button>
+          </div>
+        </form>`);
+
+  $('deliveryForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const item = $('df_item').value.trim();
+    const cliente = $('df_cliente').value.trim();
+    const endereco = $('df_endereco').value.trim();
+    const status = $('df_status').value;
+    const obs = $('df_obs').value.trim();
+    const dataHora = combineDateHora($('df_data').value, $('df_hora').value);
+    if (!item) return;
+
+    if (isEdit) {
+      const idx = state.deliveries.findIndex(x => x.id === editId);
+      if (idx !== -1) state.deliveries[idx] = { id: editId, item, cliente, endereco, status, obs, dataHora };
+    } else {
+      state.deliveries.unshift({ id: Date.now(), item, cliente, endereco, status, obs, dataHora });
+    }
+    persist(); closeModal(); render();
+    showToast(isEdit ? 'Entrega atualizada.' : 'Entrega registrada.');
+  });
+}
+
+function deleteDelivery(id) {
+  const x = state.deliveries.find(d => d.id === id);
+  if (!x) return;
+  if (!confirm(`Excluir a entrega "${x.item}"? Essa ação não pode ser desfeita.`)) return;
+  state.deliveries = state.deliveries.filter(d => d.id !== id);
+  persist(); closeModal(); render();
+  showToast('Entrega excluída.');
+}
+
+// ==========================================
+// AGENDA (visualização mensal de compras, vendas, entregas e despesas)
+// ==========================================
+// Retorna todos os eventos (de todas as 4 origens) agrupados por chave "AAAA-MM-DD"
+function buildAgendaIndex() {
+  const idx = {};
+  const push = (key, tipo, item) => {
+    if (!idx[key]) idx[key] = { compra: [], venda: [], entrega: [], despesa: [] };
+    idx[key][tipo].push(item);
+  };
+  state.purchases.forEach(p => push(dateKey(p.dataHora), 'compra', p));
+  state.sales.forEach(s => push(dateKey(s.dataHora), 'venda', s));
+  state.deliveries.forEach(d => push(dateKey(d.dataHora), 'entrega', d));
+  state.expenses.forEach(e => push(dateKey(e.dataHora), 'despesa', e));
+  return idx;
+}
+
+function renderAgenda() {
+  const year = agendaRef.getFullYear();
+  const month = agendaRef.getMonth(); // 0-indexed
+  const idx = buildAgendaIndex();
+
+  const primeiroDiaSemana = new Date(year, month, 1).getDay(); // 0=Dom
+  const totalDias = new Date(year, month + 1, 0).getDate();
+  const hojeKey = dateKey(new Date().toISOString());
+  const nomeMes = new Date(year, month, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+  const celulasVazias = Array.from({ length: primeiroDiaSemana }, () => `<div class="agenda-day empty"></div>`).join('');
+
+  const dias = Array.from({ length: totalDias }, (_, i) => {
+    const dia = i + 1;
+    const p = (n) => String(n).padStart(2, '0');
+    const key = `${year}-${p(month + 1)}-${p(dia)}`;
+    const ev = idx[key];
+    const total = ev ? (ev.compra.length + ev.venda.length + ev.entrega.length + ev.despesa.length) : 0;
+    const dots = ev ? `
+      ${ev.compra.length ? `<span class="agenda-dot dot-compra" title="${ev.compra.length} compra(s)"></span>` : ''}
+      ${ev.venda.length ? `<span class="agenda-dot dot-venda" title="${ev.venda.length} venda(s)"></span>` : ''}
+      ${ev.entrega.length ? `<span class="agenda-dot dot-entrega" title="${ev.entrega.length} entrega(s)"></span>` : ''}
+      ${ev.despesa.length ? `<span class="agenda-dot dot-despesa" title="${ev.despesa.length} despesa(s)"></span>` : ''}
+    ` : '';
+    return `
+      <div class="agenda-day ${key === hojeKey ? 'today' : ''}" onclick="openAgendaDayModal('${key}')">
+        <span class="day-num">${dia}</span>
+        <div class="dots">${dots}</div>
+        ${total ? `<span class="day-count">${total} evento${total > 1 ? 's' : ''}</span>` : ''}
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="page-head">
+      <span class="eyebrow">Planejamento</span>
+      <h1>Agenda</h1>
+      <p>Compras, vendas, entregas e despesas organizadas por dia. Clique em um dia para ver ou editar os eventos.</p>
+    </div>
+
+    <div class="agenda-toolbar">
+      <div class="agenda-nav">
+        <button class="agenda-icon-btn" onclick="agendaChangeMonth(-1)" title="Mês anterior">‹</button>
+        <span class="month-label">${nomeMes}</span>
+        <button class="agenda-icon-btn" onclick="agendaChangeMonth(1)" title="Próximo mês">›</button>
+      </div>
+      <button class="btn-secondary" onclick="agendaGoToday()">Hoje</button>
+    </div>
+
+    <div class="agenda-legend">
+      <span><span class="agenda-dot dot-compra"></span> Compras</span>
+      <span><span class="agenda-dot dot-venda"></span> Vendas</span>
+      <span><span class="agenda-dot dot-entrega"></span> Entregas</span>
+      <span><span class="agenda-dot dot-despesa"></span> Despesas</span>
+    </div>
+
+    <div class="card" style="overflow:hidden">
+      <div class="agenda-grid">
+        <div class="agenda-weekday">Dom</div><div class="agenda-weekday">Seg</div><div class="agenda-weekday">Ter</div>
+        <div class="agenda-weekday">Qua</div><div class="agenda-weekday">Qui</div><div class="agenda-weekday">Sex</div><div class="agenda-weekday">Sáb</div>
+        ${celulasVazias}${dias}
+      </div>
+    </div>
+  `;
+}
+
+function agendaChangeMonth(delta) {
+  agendaRef = new Date(agendaRef.getFullYear(), agendaRef.getMonth() + delta, 1);
+  render();
+}
+
+function agendaGoToday() {
+  agendaRef = new Date();
+  render();
+}
+
+// Abre o modal com todos os eventos de um dia específico, permitindo editar/excluir
+// cada um diretamente, além de criar novos eventos já naquela data.
+function openAgendaDayModal(key) {
+  const idx = buildAgendaIndex();
+  const ev = idx[key] || { compra: [], venda: [], entrega: [], despesa: [] };
+  const [y, m, d] = key.split('-').map(Number);
+  const dataLabel = new Date(y, m - 1, d).toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+  // Data ISO ao meio-dia local, usada como padrão ao criar novos eventos neste dia
+  const defaultDateIso = new Date(y, m - 1, d, 12, 0, 0).toISOString();
+
+  const rowsCompra = ev.compra.map(p => `
+    <div class="agenda-event-row">
+      <div>
+        <span class="agenda-event-type type-compra">Compra</span>
+        <p style="margin:0;font-weight:600;color:var(--slate-900)">${escapeHtml(p.produtoNome)}</p>
+        <p style="margin:2px 0 0;color:var(--slate-500)">+${p.qtd} un • ${fmt(p.custoTotal)} • ${escapeHtml(p.fornecedor || 'Fornecedor não informado')}</p>
+      </div>
+      <div style="display:flex;gap:4px;flex-shrink:0">
+        <button class="del-btn" title="Editar" onclick="closeModal(); openPurchaseModal({editId:${p.id}})">✎</button>
+        <button class="del-btn" title="Excluir" onclick="deletePurchase(${p.id})">🗑</button>
+      </div>
+    </div>`).join('');
+
+  const rowsVenda = ev.venda.map(s => {
+    const itens = getSaleItens(s);
+    const totalUnidades = itens.reduce((acc, it) => acc + it.qtd, 0);
+    const titulo = itens.length > 1 ? `${itens.length} produtos (${totalUnidades} un)` : escapeHtml(itens[0].produtoNome);
+    return `
+    <div class="agenda-event-row">
+      <div>
+        <span class="agenda-event-type type-venda">Venda</span>
+        <p style="margin:0;font-weight:600;color:var(--slate-900)">Venda #${getSaleNumero(s)} · ${titulo}</p>
+        <p style="margin:2px 0 0;color:var(--slate-500)">${fmt(s.faturamento)} • Cliente: ${escapeHtml(s.cliente || 'Final')}</p>
+      </div>
+      <div style="display:flex;gap:4px;flex-shrink:0">
+        <button class="del-btn" title="Editar" onclick="closeModal(); openSaleModal({editId:${s.id}})">✎</button>
+        <button class="del-btn" title="Cancelar venda" onclick="cancelSale(${s.id})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  const rowsEntrega = ev.entrega.map(x => `
+    <div class="agenda-event-row">
+      <div>
+        <span class="agenda-event-type type-entrega">Entrega</span>
+        <p style="margin:0;font-weight:600;color:var(--slate-900)">${escapeHtml(x.item)}</p>
+        <p style="margin:2px 0 0;color:var(--slate-500)">${escapeHtml(x.cliente || 'Cliente não informado')} • Status: ${escapeHtml(x.status)}</p>
+      </div>
+      <div style="display:flex;gap:4px;flex-shrink:0">
+        <button class="del-btn" title="Editar" onclick="closeModal(); openDeliveryModal({editId:${x.id}})">✎</button>
+        <button class="del-btn" title="Excluir" onclick="deleteDelivery(${x.id})">🗑</button>
+      </div>
+    </div>`).join('');
+
+  const rowsDespesa = ev.despesa.map(x => `
+    <div class="agenda-event-row">
+      <div>
+        <span class="agenda-event-type type-despesa">Despesa</span>
+        <p style="margin:0;font-weight:600;color:var(--slate-900)">${escapeHtml(x.descricao)}</p>
+        <p style="margin:2px 0 0;color:var(--slate-500)">${fmt(x.valor)} • ${escapeHtml(x.categoria || 'Outro')}</p>
+      </div>
+      <div style="display:flex;gap:4px;flex-shrink:0">
+        <button class="del-btn" title="Editar" onclick="closeModal(); openExpenseModal({editId:${x.id}})">✎</button>
+        <button class="del-btn" title="Excluir" onclick="deleteExpense(${x.id})">🗑</button>
+      </div>
+    </div>`).join('');
+
+  const todasVazias = !rowsCompra && !rowsVenda && !rowsEntrega && !rowsDespesa;
+
+  openModal(`
+    <h3 style="text-transform:capitalize">${dataLabel}</h3>
+    <div class="agenda-quickadd">
+      <button type="button" class="btn-secondary" onclick="closeModal(); openPurchaseModal({defaultDate:'${defaultDateIso}'})">+ Compra</button>
+      <button type="button" class="btn-secondary" onclick="closeModal(); openSaleModal({defaultDate:'${defaultDateIso}'})">+ Venda</button>
+      <button type="button" class="btn-secondary" onclick="closeModal(); openDeliveryModal({defaultDate:'${defaultDateIso}'})">+ Entrega</button>
+      <button type="button" class="btn-secondary" onclick="closeModal(); openExpenseModal({defaultDate:'${defaultDateIso}'})">+ Despesa</button>
+    </div>
+    <div style="max-height:360px;overflow-y:auto">
+      ${todasVazias ? '<p class="empty-note" style="padding:6px 0">Nenhum evento neste dia ainda. Use os botões acima para adicionar.</p>' : `${rowsCompra}${rowsVenda}${rowsEntrega}${rowsDespesa}`}
+    </div>
+    <div class="modal-actions" style="margin-top:16px">
+      <button type="button" class="btn-secondary" style="flex:1" onclick="closeModal()">Fechar</button>
+    </div>
+  `);
+}
+
+// ==========================================
+// RENDER PRINCIPAL
+// ==========================================
+function renderPage() {
+  if (activeTab === 'dashboard') return renderDashboard();
+  if (activeTab === 'estoque') return renderEstoque();
+  if (activeTab === 'compras') return renderCompras();
+  if (activeTab === 'vendas') return renderVendas();
+  if (activeTab === 'agenda') return renderAgenda();
+  if (activeTab === 'analises') return renderAnalises();
+  return '';
+}
+
+function render() {
+  renderNav();
+  const main = $('main');
+  main.innerHTML = renderPage() + `<p class="footer-note">Dados salvos automaticamente neste navegador, neste dispositivo.</p>`;
+}
+
+// ==========================================
+// TOAST
+// ==========================================
+function showToast(msg) {
+  const root = $('toastRoot');
+  root.innerHTML = `<div class="toast">✅ <span>${msg}</span></div>`;
+  setTimeout(() => { root.innerHTML = ''; }, 4000);
+}
+
+// ==========================================
+// MODAL: NOVO PRODUTO
+// ==========================================
+function openProductModal() {
+  openModal(`
+        <h3>Novo Produto</h3>
+        <form id="productForm">
+          <input class="field" required id="pf_nome" placeholder="Nome do Produto" />
+          <input class="field" id="pf_cat" placeholder="Categoria (ex: Eletrônicos, Alimentos, Peças...)" />
+          <input class="field" type="number" step="0.01" required id="pf_custo" placeholder="Custo unitário inicial" />
+          <div class="hint-box" style="flex-direction:column;align-items:stretch;gap:8px">
+            <strong style="color:var(--slate-700);font-size:12px">🧮 Calculadora de Preço</strong>
+            <div id="pf_marginBtns" data-margin="" style="display:flex;flex-wrap:wrap;gap:6px">
+              <button type="button" class="margin-btn" data-m="10">10%</button>
+              <button type="button" class="margin-btn" data-m="15">15%</button>
+              <button type="button" class="margin-btn" data-m="20">20%</button>
+              <button type="button" class="margin-btn" data-m="25">25%</button>
+              <button type="button" class="margin-btn" data-m="30">30%</button>
+              <button type="button" class="margin-btn" data-m="40">40%</button>
+              <button type="button" class="margin-btn" data-m="50">50%</button>
+              <button type="button" class="margin-btn" data-m="custom">Personalizado</button>
+            </div>
+            <input class="field" style="margin:0" type="number" step="0.1" id="pf_customMargin" placeholder="Margem personalizada (%)" hidden />
+          </div>
+          <input class="field" type="number" step="0.01" required id="pf_preco" placeholder="Preço sugerido de venda" />
+          <p id="pf_marginInfo" style="font-size:11px;color:var(--slate-500);margin:-6px 0 12px">Informe o custo e o preço para ver o lucro esperado.</p>
+          <div class="hint-box">ℹ️ Por consistência, o estoque inicial deste item será zero. Realize uma compra para abastecê-lo.</div>
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" onclick="closeModal()">Cancelar</button>
+            <button type="submit" class="btn-primary" style="flex:1">Criar Produto</button>
+          </div>
+        </form>`);
+  $('productForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const nome = $('pf_nome').value.trim();
+    const categoria = $('pf_cat').value;
+    const custo = parseFloat($('pf_custo').value) || 0;
+    const preco = parseFloat($('pf_preco').value) || 0;
+    if (!nome) return;
+    state.products.unshift({ id: Date.now(), foto: "", nome, categoria, quantidade: 0, custoUnitario: custo, precoSugerido: preco });
+    persist(); closeModal(); render();
+    showToast(`Produto "${nome}" criado com estoque inicial zero.`);
+  });
+  setupPriceCalculator('pf');
+}
+
+// ==========================================
+// CALCULADORA DE PREÇO (custo + margem -> preço sugerido)
+// ==========================================
+function setupPriceCalculator(prefix) {
+  const custoInp = $(prefix + '_custo');
+  const precoInp = $(prefix + '_preco');
+  const customInp = $(prefix + '_customMargin');
+  const btnsBox = $(prefix + '_marginBtns');
+  const info = $(prefix + '_marginInfo');
+  if (!custoInp || !precoInp || !btnsBox) return;
+
+  function updateInfo() {
+    const custo = parseFloat(custoInp.value) || 0;
+    const preco = parseFloat(precoInp.value) || 0;
+    if (custo <= 0 || preco <= 0) {
+      info.textContent = 'Informe o custo e o preço para ver o lucro esperado.';
+      info.style.color = 'var(--slate-500)';
+      return;
+    }
+    const { lucro, margem } = calcLucroMargem(custo, preco);
+    info.textContent = `Lucro esperado: ${fmt(lucro)} · Margem: ${fmtPct(margem)}`;
+    info.style.color = lucro >= 0 ? 'var(--emerald-600)' : 'var(--rose-600)';
+  }
+
+  function recalcPriceFromMargin() {
+    const custo = parseFloat(custoInp.value) || 0;
+    const margem = parseFloat(btnsBox.dataset.margin);
+    if (custo > 0 && !isNaN(margem)) {
+      precoInp.value = (custo * (1 + margem / 100)).toFixed(2);
+    }
+    updateInfo();
+  }
+
+  btnsBox.querySelectorAll('.margin-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btnsBox.querySelectorAll('.margin-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const m = btn.dataset.m;
+      if (m === 'custom') {
+        customInp.hidden = false;
+        customInp.focus();
+        btnsBox.dataset.margin = customInp.value || '';
+      } else {
+        customInp.hidden = true;
+        btnsBox.dataset.margin = m;
+        recalcPriceFromMargin();
+      }
+    });
+  });
+
+  customInp.addEventListener('input', () => {
+    btnsBox.dataset.margin = customInp.value || '';
+    recalcPriceFromMargin();
+  });
+
+  custoInp.addEventListener('input', recalcPriceFromMargin);
+
+  precoInp.addEventListener('input', () => {
+    btnsBox.querySelectorAll('.margin-btn').forEach(b => b.classList.remove('active'));
+    btnsBox.dataset.margin = '';
+    updateInfo();
+  });
+}
+
+// ==========================================
+// MODAL: REGISTRAR COMPRA
+// ==========================================
+function openPurchaseModal(opts = {}) {
+  const { editId, defaultDate } = opts;
+  const isEdit = !!editId;
+  const prefill = isEdit ? state.purchases.find(p => p.id === editId) : null;
+  const dataHoraDefault = prefill ? new Date(prefill.dataHora) : (defaultDate ? new Date(defaultDate) : new Date());
+  const options = state.products.map(p => `<option value="${p.id}" ${prefill && prefill.produtoId === p.id ? 'selected' : ''}>${escapeHtml(p.nome)}</option>`).join('');
+  openModal(`
+        <h3>${isEdit ? 'Editar Compra' : 'Registrar Compra'}</h3>
+        <form id="purchaseForm">
+          <select class="field" required id="cf_prod"><option value="">Selecione o produto...</option>${options}</select>
+          <div class="grid2">
+            <input class="field" type="number" min="1" required id="cf_qtd" placeholder="Qtd comprada" value="${prefill ? prefill.qtd : ''}" />
+            <input class="field" type="number" step="0.01" required id="cf_preco" placeholder="Preço unitário" value="${prefill ? prefill.valorUnitario : ''}" />
+          </div>
+          <div class="grid2">
+            <input class="field" type="number" step="0.01" value="${prefill ? prefill.frete : 0}" id="cf_frete" placeholder="Frete total" />
+            <input class="field" type="number" step="0.01" value="${prefill ? prefill.outrosCustos : 0}" id="cf_outros" placeholder="Outros custos" />
+          </div>
+          <input class="field" id="cf_forn" placeholder="Fornecedor" value="${prefill ? escapeHtml(prefill.fornecedor || '') : ''}" />
+          <select class="field" required id="cf_pagamento">
+            <option value="">Forma de pagamento...</option>
+            ${FORMAS_PAGAMENTO_COMPRA.map(f => `<option value="${f}" ${prefill && prefill.formaPagamento === f ? 'selected' : ''}>${f}</option>`).join('')}
+          </select>
+          ${dataHoraLabel('Data e hora da compra', 'cf_data', 'cf_hora')}
+          <div class="grid2">
+            <input class="field" type="date" required id="cf_data" value="${nowDateInputValue(dataHoraDefault)}" />
+            <input class="field" type="time" required id="cf_hora" value="${nowTimeInputValue(dataHoraDefault)}" />
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" onclick="closeModal()">Cancelar</button>
+            <button type="submit" class="btn-primary" style="flex:1">${isEdit ? 'Salvar Alterações' : 'Salvar Entrada'}</button>
+          </div>
+        </form>`);
+  $('purchaseForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const pId = parseInt($('cf_prod').value);
+    const q = parseInt($('cf_qtd').value);
+    const uVal = parseFloat($('cf_preco').value);
+    const fr = parseFloat($('cf_frete').value) || 0;
+    const ot = parseFloat($('cf_outros').value) || 0;
+    const forn = $('cf_forn').value.trim();
+    const formaPagamento = $('cf_pagamento').value;
+    const dataHora = combineDateHora($('cf_data').value, $('cf_hora').value);
+    if (!pId || !q || !uVal || !formaPagamento) return;
+    const cTotal = q * uVal + fr + ot;
+
+    if (isEdit) {
+      // Desfaz o efeito da compra original no estoque, então aplica os novos valores
+      const oldIdx = getProductIndex(prefill.produtoId);
+      if (oldIdx !== -1) removePurchaseFromStock(oldIdx, prefill.qtd, prefill.custoTotal);
+      const newIdx = getProductIndex(pId);
+      if (newIdx === -1) return;
+      applyPurchaseToStock(newIdx, q, cTotal, uVal);
+      const target = state.products[newIdx];
+      const idxSale = state.purchases.findIndex(p => p.id === editId);
+      state.purchases[idxSale] = { id: editId, produtoId: pId, produtoNome: target.nome, qtd: q, valorUnitario: uVal, frete: fr, outrosCustos: ot, custoTotal: cTotal, fornecedor: forn, formaPagamento, dataHora };
+      persist(); closeModal(); render();
+      showToast(`Compra atualizada e estoque recalculado.`);
+      return;
+    }
+
+    const idx = getProductIndex(pId);
+    if (idx === -1) return;
+    applyPurchaseToStock(idx, q, cTotal, uVal);
+    const target = state.products[idx];
+    state.purchases.unshift({ id: Date.now(), produtoId: pId, produtoNome: target.nome, qtd: q, valorUnitario: uVal, frete: fr, outrosCustos: ot, custoTotal: cTotal, fornecedor: forn, formaPagamento, dataHora });
+    persist(); closeModal(); render();
+    showToast(`Estoque somado e custo médio atualizado para "${target.nome}".`);
+  });
+}
+
+// ==========================================
+// MODAL: REGISTRAR VENDA
+// ==========================================
+function openSaleModal(opts = {}) {
+  const { editId = null, duplicateFrom = null, defaultDate = null } = opts;
+  const isEdit = !!editId;
+  const prefill = isEdit
+    ? state.sales.find(s => s.id === editId)
+    : (duplicateFrom ? state.sales.find(s => s.id === duplicateFrom) : null);
+  const dataHoraDefault = (isEdit && prefill) ? new Date(prefill.dataHora) : (defaultDate ? new Date(defaultDate) : new Date());
+
+  const options = state.products.map(p => `<option value="${p.id}" ${p.quantidade===0?'disabled':''}>${escapeHtml(p.nome)} (Estoque: ${p.quantidade})</option>`).join('');
+  openModal(`
+        <h3>${isEdit ? 'Editar Venda' : 'Registrar Venda (Carrinho)'}</h3>
+        ${!isEdit && duplicateFrom ? `<div class="hint-box">⧉ Duplicando venda anterior — revise os dados e confirme.</div>` : ''}
+        ${isEdit ? `<div class="hint-box">✎ Editando uma venda por troca não repete o recebimento do produto trocado no estoque; apenas os dados abaixo são atualizados.</div>` : ''}
+        <form id="saleForm">
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <button type="button" class="margin-btn active" id="sf_tipoDinheiro" style="flex:1;padding:9px 10px">💵 Venda em Dinheiro</button>
+            <button type="button" class="margin-btn" id="sf_tipoTroca" style="flex:1;padding:9px 10px">🔁 Venda por Troca</button>
+          </div>
+
+          <div id="sf_dinheiroFields">
+            <div class="hint-box">🛒 Adicione um ou mais produtos ao carrinho desta venda.</div>
+            <select class="field" id="sf_itemProd"><option value="">Selecione o produto...</option>${options}</select>
+            <div class="grid2">
+              <input class="field" type="number" min="1" id="sf_itemQtd" value="1" placeholder="Quantidade" />
+              <input class="field" type="number" step="0.01" id="sf_itemPreco" placeholder="Preço unitário" />
+            </div>
+            <input class="field" type="number" step="0.01" id="sf_itemDesconto" value="0" placeholder="Desconto neste item (R$, opcional)" />
+            <p id="sf_itemWarn" style="font-size:11px;color:var(--rose-600);font-weight:600;margin:-4px 0 10px"></p>
+            <button type="button" class="btn-secondary" style="width:100%;margin-bottom:14px" id="sf_addItemBtn">+ Adicionar ao carrinho</button>
+
+            <div id="sf_cartList" style="margin-bottom:14px"></div>
+
+            <select class="field" id="sf_pagamento">
+              <option value="">Forma de pagamento...</option>
+              ${FORMAS_PAGAMENTO_VENDA.map(f => `<option value="${f}">${f}</option>`).join('')}
+            </select>
+          </div>
+
+          <div id="sf_trocaFields" class="hidden">
+            <select class="field" id="sf_trocaProd"><option value="">Produto entregue na troca...</option>${options}</select>
+            <input class="field" type="number" min="1" id="sf_trocaQtd" value="1" placeholder="Qtd vendida" />
+            <input class="field" id="sf_trocaNome" placeholder="Nome do produto recebido na troca" />
+            <div class="grid2">
+              <input class="field" type="number" step="0.01" id="sf_trocaValor" placeholder="Valor atribuído ao produto (R$)" />
+              <input class="field" type="number" step="0.01" id="sf_trocaDinheiro" value="0" placeholder="Dinheiro recebido (opcional)" />
+            </div>
+          </div>
+
+          <input class="field" id="sf_cliente" placeholder="Nome do Cliente" />
+          <input class="field" id="sf_obs" placeholder="Observações (opcional)" />
+          ${dataHoraLabel('Data e hora da venda', 'sf_data', 'sf_hora')}
+          <div class="grid2">
+            <input class="field" type="date" required id="sf_data" value="${nowDateInputValue(dataHoraDefault)}" />
+            <input class="field" type="time" required id="sf_hora" value="${nowTimeInputValue(dataHoraDefault)}" />
+          </div>
+          <div id="sf_profitBox"></div>
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" onclick="closeModal()">Cancelar</button>
+            <button type="submit" class="btn-primary" id="sf_submit" style="flex:1">${isEdit ? 'Salvar Alterações' : 'Concluir Venda'}</button>
+          </div>
+        </form>`);
+
+  const submitBtn = $('sf_submit');
+  const tipoDinheiroBtn = $('sf_tipoDinheiro');
+  const tipoTrocaBtn = $('sf_tipoTroca');
+  const dinheiroFields = $('sf_dinheiroFields');
+  const trocaFields = $('sf_trocaFields');
+  const pagamentoSel = $('sf_pagamento');
+
+  const itemProdSel = $('sf_itemProd');
+  const itemQtdInp = $('sf_itemQtd');
+  const itemPrecoInp = $('sf_itemPreco');
+  const itemDescontoInp = $('sf_itemDesconto');
+  const itemWarn = $('sf_itemWarn');
+  const addItemBtn = $('sf_addItemBtn');
+  const cartListEl = $('sf_cartList');
+
+  const trocaProdSel = $('sf_trocaProd');
+  const trocaQtdInp = $('sf_trocaQtd');
+  const trocaNomeInp = $('sf_trocaNome');
+  const trocaValorInp = $('sf_trocaValor');
+  const trocaDinheiroInp = $('sf_trocaDinheiro');
+
+  let saleTipo = (prefill && prefill.tipo === 'troca') ? 'troca' : 'dinheiro';
+  let cartItens = []; // itens do carrinho da venda em dinheiro: {produtoId, produtoNome, qtd, precoUnitario, desconto, custoUnitario}
+
+  // Quantidade que a PRÓPRIA venda em edição já tinha reservado de cada produto (já foi
+  // deduzida do estoque real na criação). Consideramos essa quantidade "disponível de volta"
+  // enquanto o usuário reconstrói o carrinho, sem mexer no estoque real até salvar.
+  const reservaOriginalPorProduto = {};
+  if (isEdit && prefill && prefill.tipo === 'dinheiro') {
+    getSaleItens(prefill).forEach(it => {
+      reservaOriginalPorProduto[it.produtoId] = (reservaOriginalPorProduto[it.produtoId] || 0) + it.qtd;
+    });
+  }
+  const reservaOriginalTroca = (isEdit && prefill && prefill.tipo === 'troca') ? getSaleItens(prefill)[0] : null;
+
+  if (prefill) {
+    $('sf_cliente').value = prefill.cliente || '';
+    $('sf_obs').value = getSaleObs(prefill);
+    if (saleTipo === 'dinheiro') {
+      cartItens = getSaleItens(prefill).map(it => ({
+        produtoId: it.produtoId, produtoNome: it.produtoNome, qtd: it.qtd,
+        precoUnitario: it.precoUnitario || 0, desconto: it.desconto || 0, custoUnitario: it.custoUnitario
+      }));
+      pagamentoSel.value = prefill.formaPagamento || '';
+    } else {
+      const it0 = getSaleItens(prefill)[0] || {};
+      trocaProdSel.value = it0.produtoId || '';
+      trocaQtdInp.value = it0.qtd || 1;
+      trocaNomeInp.value = prefill.trocaProdutoNome || '';
+      trocaValorInp.value = prefill.trocaValorProduto || '';
+      trocaDinheiroInp.value = prefill.trocaDinheiro || 0;
+    }
+  }
+
+  function toggleTipo() {
+    tipoDinheiroBtn.classList.toggle('active', saleTipo === 'dinheiro');
+    tipoTrocaBtn.classList.toggle('active', saleTipo === 'troca');
+    dinheiroFields.classList.toggle('hidden', saleTipo !== 'dinheiro');
+    trocaFields.classList.toggle('hidden', saleTipo !== 'troca');
+    pagamentoSel.required = saleTipo === 'dinheiro';
+    updateProfitBox();
+  }
+  tipoDinheiroBtn.addEventListener('click', () => { saleTipo = 'dinheiro'; toggleTipo(); });
+  tipoTrocaBtn.addEventListener('click', () => { saleTipo = 'troca'; toggleTipo(); });
+
+  // Estoque ainda disponível para um produto, descontando o que já está no carrinho e
+  // devolvendo virtualmente a quantidade que a própria venda em edição já tinha reservado.
+  function estoqueDisponivel(produtoId) {
+    const p = state.products.find(x => x.id === produtoId);
+    if (!p) return 0;
+    const base = p.quantidade + (reservaOriginalPorProduto[produtoId] || 0);
+    const jaNoCarrinho = cartItens.filter(i => i.produtoId === produtoId).reduce((s, i) => s + i.qtd, 0);
+    return base - jaNoCarrinho;
+  }
+
+  // Estoque disponível para o produto entregue numa troca em edição (devolve virtualmente a
+  // quantidade que a própria venda já havia reservado, se for o mesmo produto).
+  function estoqueDisponivelTroca(produtoId) {
+    const p = state.products.find(x => x.id === produtoId);
+    if (!p) return 0;
+    const reserva = (reservaOriginalTroca && reservaOriginalTroca.produtoId === produtoId) ? reservaOriginalTroca.qtd : 0;
+    return p.quantidade + reserva;
+  }
+
+  function calcSubtotalItem(it) {
+    return Math.max(it.qtd * it.precoUnitario - it.desconto, 0);
+  }
+
+  function calcCartTotais() {
+    let faturamento = 0, custo = 0;
+    cartItens.forEach(it => { faturamento += calcSubtotalItem(it); custo += it.qtd * it.custoUnitario; });
+    return { faturamento, custo, lucro: faturamento - custo };
+  }
+
+  function renderCart() {
+    if (cartItens.length === 0) {
+      cartListEl.innerHTML = '<p class="empty-note">Nenhum item adicionado ainda.</p>';
+    } else {
+      cartListEl.innerHTML = cartItens.map((it, idx) => `
+        <div class="list-row" style="align-items:center">
+          <span class="name" style="font-weight:600">${escapeHtml(it.produtoNome)}
+            <div style="font-weight:400;color:var(--slate-500);font-size:11px;margin-top:2px">${it.qtd} un × ${fmt(it.precoUnitario)}${it.desconto>0?' − '+fmt(it.desconto)+' desc.':''}</div>
+          </span>
+          <span class="val" style="display:flex;align-items:center;gap:10px">
+            ${fmt(calcSubtotalItem(it))}
+            <button type="button" class="del-btn" data-idx="${idx}" title="Remover item">🗑</button>
+          </span>
+        </div>`).join('');
+      cartListEl.querySelectorAll('button[data-idx]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          cartItens.splice(parseInt(btn.dataset.idx), 1);
+          renderCart();
+        });
+      });
+    }
+    updateProfitBox();
+  }
+
+  addItemBtn.addEventListener('click', () => {
+    itemWarn.textContent = '';
+    const pid = parseInt(itemProdSel.value);
+    const p = state.products.find(x => x.id === pid);
+    const qtd = parseInt(itemQtdInp.value);
+    const preco = parseFloat(itemPrecoInp.value);
+    const desconto = parseFloat(itemDescontoInp.value) || 0;
+
+    if (!p) { itemWarn.textContent = 'Selecione um produto.'; return; }
+    if (!qtd || qtd <= 0) { itemWarn.textContent = 'Informe uma quantidade válida.'; return; }
+    const disponivel = estoqueDisponivel(pid);
+    if (qtd > disponivel) { itemWarn.textContent = `Estoque insuficiente. Disponível: ${disponivel}.`; return; }
+    if (isNaN(preco) || preco < 0) { itemWarn.textContent = 'Informe um preço unitário válido.'; return; }
+    if (desconto < 0 || desconto > qtd * preco) { itemWarn.textContent = 'Desconto inválido para este item.'; return; }
+
+    cartItens.push({ produtoId: pid, produtoNome: p.nome, qtd, precoUnitario: preco, desconto, custoUnitario: p.custoUnitario });
+    itemProdSel.value = '';
+    itemQtdInp.value = 1;
+    itemPrecoInp.value = '';
+    itemDescontoInp.value = 0;
+    renderCart();
+  });
+
+  itemProdSel.addEventListener('change', () => {
+    const p = state.products.find(x => x.id === parseInt(itemProdSel.value));
+    if (p) itemPrecoInp.value = p.precoSugerido;
+  });
+
+  // Calcula faturamento/custo/lucro da venda por troca em curso
+  function calcTrocaAtual(p, q) {
+    const custo = q * (p ? p.custoUnitario : 0);
+    const valorTroca = parseFloat(trocaValorInp.value) || 0;
+    const dinheiro = parseFloat(trocaDinheiroInp.value) || 0;
+    const faturamento = valorTroca + dinheiro;
+    return { faturamento, custo, lucro: faturamento - custo };
+  }
+
+  function updateProfitBox() {
+    const box = $('sf_profitBox');
+    if (saleTipo === 'dinheiro') {
+      if (cartItens.length === 0) { box.innerHTML = ''; submitBtn.disabled = true; return; }
+      const { faturamento, custo, lucro } = calcCartTotais();
+      const margem = custo > 0 ? (lucro / custo) * 100 : 0;
+      box.innerHTML = `
+        <div class="profit-box" style="flex-direction:column;align-items:stretch;gap:6px">
+          <div style="display:flex;justify-content:space-between"><span>Total da Venda</span><span class="amt">${fmt(faturamento)}</span></div>
+          <div style="display:flex;justify-content:space-between"><span>Lucro da Venda</span><span class="amt">${lucro>=0?'+ ':'- '}${fmt(Math.abs(lucro))}</span></div>
+          <div style="display:flex;justify-content:space-between"><span>Margem</span><span class="amt">${fmtPct(margem)}</span></div>
+        </div>`;
+      submitBtn.disabled = !(cartItens.length > 0 && pagamentoSel.value !== '');
+    } else {
+      const p = state.products.find(x => x.id === parseInt(trocaProdSel.value));
+      const q = parseInt(trocaQtdInp.value) || 0;
+      if (!p) { box.innerHTML = ''; submitBtn.disabled = true; return; }
+      const { lucro } = calcTrocaAtual(p, q);
+      const valorTroca = parseFloat(trocaValorInp.value) || 0;
+      const disponivelTroca = estoqueDisponivelTroca(p.id);
+      const valido = q > 0 && q <= disponivelTroca && trocaNomeInp.value.trim().length > 0 && valorTroca > 0;
+      box.innerHTML = `<div class="profit-box"><span>Lucro Real Estimado:</span><span class="amt">${lucro>=0?'+ ':'- '}${fmt(Math.abs(lucro))}</span></div>` +
+        (q > disponivelTroca ? `<p class="warn-text">Quantidade acima do estoque disponível!</p>` : '');
+      submitBtn.disabled = !valido;
+    }
+  }
+
+  pagamentoSel.addEventListener('change', updateProfitBox);
+  trocaProdSel.addEventListener('change', updateProfitBox);
+  trocaQtdInp.addEventListener('input', updateProfitBox);
+  trocaNomeInp.addEventListener('input', updateProfitBox);
+  trocaValorInp.addEventListener('input', updateProfitBox);
+  trocaDinheiroInp.addEventListener('input', updateProfitBox);
+
+  // Cria/atualiza o produto recebido em uma troca no estoque
+  function receberProdutoTroca(trocaNome, trocaValor) {
+    const existenteIdx = state.products.findIndex(p => p.nome.trim().toLowerCase() === trocaNome.toLowerCase());
+    if (existenteIdx === -1) {
+      state.products.unshift({ id: Date.now() + 1, foto: "", nome: trocaNome, categoria: "", quantidade: 1, custoUnitario: trocaValor, precoSugerido: trocaValor });
+      return;
+    }
+    const existente = state.products[existenteIdx];
+    const somar = confirm(`Já existe "${existente.nome}" no estoque (${existente.quantidade} un, custo médio ${fmt(existente.custoUnitario)}).\n\nOK = somar 1 unidade a ele e recalcular o custo médio.\nCancelar = criar um novo cadastro separado.`);
+    if (somar) {
+      const novaQtd = existente.quantidade + 1;
+      const novoCusto = ((existente.quantidade * existente.custoUnitario) + trocaValor) / novaQtd;
+      updateProductAt(existenteIdx, { quantidade: novaQtd, custoUnitario: parseFloat(novoCusto.toFixed(2)) });
+    } else {
+      state.products.unshift({ id: Date.now() + 1, foto: "", nome: trocaNome, categoria: "", quantidade: 1, custoUnitario: trocaValor, precoSugerido: trocaValor });
+    }
+  }
+
+  // Ao editar, devolve ao estoque real os itens que a venda original já havia reservado.
+  // (O lado "recebido" de uma troca antiga nunca é revertido — ver aviso na tela.)
+  function reverterVendaOriginalParaEdicao() {
+    const original = state.sales.find(s => s.id === editId);
+    if (!original) return;
+    getSaleItens(original).forEach(it => {
+      const idx = getProductIndex(it.produtoId);
+      if (idx !== -1) returnStock(idx, it.qtd);
+    });
+  }
+
+  $('saleForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const cliente = $('sf_cliente').value.trim();
+    const observacoes = $('sf_obs').value.trim();
+    const dataHora = combineDateHora($('sf_data').value, $('sf_hora').value);
+
+    if (saleTipo === 'dinheiro') {
+      if (cartItens.length === 0) return;
+      const formaPagamento = pagamentoSel.value;
+      if (!formaPagamento) return;
+
+      // Revalida o estoque de cada item antes de concluir (considerando a reserva original, se for edição)
+      for (const it of cartItens) {
+        if (it.qtd > estoqueDisponivel(it.produtoId)) {
+          showToast(`Estoque insuficiente para "${it.produtoNome}". Ajuste o carrinho.`);
+          return;
+        }
+      }
+
+      const itens = cartItens.map(it => {
+        const subtotal = calcSubtotalItem(it);
+        const custoTotalItem = it.qtd * it.custoUnitario;
+        return {
+          produtoId: it.produtoId, produtoNome: it.produtoNome, qtd: it.qtd,
+          precoUnitario: it.precoUnitario, desconto: it.desconto, subtotal,
+          custoUnitario: it.custoUnitario, custoTotalItem, lucroItem: subtotal - custoTotalItem
+        };
+      });
+      const faturamento = itens.reduce((s, i) => s + i.subtotal, 0);
+      const custoTotal = itens.reduce((s, i) => s + i.custoTotalItem, 0);
+      const lucroVenda = faturamento - custoTotal;
+      const margemVenda = custoTotal > 0 ? (lucroVenda / custoTotal) * 100 : 0;
+
+      if (isEdit) reverterVendaOriginalParaEdicao();
+
+      // Baixa o estoque de todos os itens (venda nova ou já revertida, se for edição)
+      itens.forEach(it => {
+        const idx = getProductIndex(it.produtoId);
+        if (idx !== -1) deductStock(idx, it.qtd);
+      });
+
+      const novaVenda = { id: isEdit ? editId : Date.now(), tipo: 'dinheiro', itens, cliente, formaPagamento, faturamento, custoTotal, lucro: lucroVenda, dataHora, observacoes };
+      if (isEdit) {
+        const idxSale = state.sales.findIndex(s => s.id === editId);
+        if (idxSale !== -1) state.sales[idxSale] = novaVenda; else state.sales.unshift(novaVenda);
+      } else {
+        state.sales.unshift(novaVenda);
+      }
+      persist(); closeModal(); render();
+      showToast(`${isEdit ? 'Venda atualizada!' : 'Venda registrada!'} Total: ${fmt(faturamento)} · Lucro: ${fmt(lucroVenda)} · Margem: ${fmtPct(margemVenda)}`);
+      return;
+    }
+
+    // Venda por Troca (permanece um único produto por troca)
+    const pId = parseInt(trocaProdSel.value);
+    const q = parseInt(trocaQtdInp.value);
+    const p = state.products.find(x => x.id === pId);
+    if (!p) return;
+    const disponivelTroca = estoqueDisponivelTroca(pId);
+    if (q > disponivelTroca || q <= 0) return;
+
+    const trocaNome = trocaNomeInp.value.trim();
+    const trocaValor = parseFloat(trocaValorInp.value) || 0;
+    const trocaDinheiro = parseFloat(trocaDinheiroInp.value) || 0;
+    if (!trocaNome || trocaValor <= 0) return;
+
+    const { faturamento, custo: custoTotal, lucro: lucroVenda } = calcTrocaAtual(p, q);
+    const margemVenda = custoTotal > 0 ? (lucroVenda / custoTotal) * 100 : 0;
+
+    if (isEdit) reverterVendaOriginalParaEdicao();
+    const idx = getProductIndex(pId);
+    if (idx !== -1) deductStock(idx, q);
+    // Só recebe o produto trocado de fato quando é uma venda nova (nova ou duplicada);
+    // editar uma troca já existente não repete esse recebimento no estoque.
+    if (!isEdit) receberProdutoTroca(trocaNome, trocaValor);
+
+    const novaVenda = {
+      id: isEdit ? editId : Date.now(), tipo: 'troca',
+      itens: [{ produtoId: pId, produtoNome: p.nome, qtd: q, precoUnitario: null, desconto: 0, subtotal: faturamento, custoUnitario: p.custoUnitario, custoTotalItem: custoTotal, lucroItem: lucroVenda }],
+      cliente, faturamento, custoTotal, lucro: lucroVenda, dataHora, observacoes,
+      trocaProdutoNome: trocaNome, trocaValorProduto: trocaValor, trocaDinheiro
+    };
+    if (isEdit) {
+      const idxSale = state.sales.findIndex(s => s.id === editId);
+      if (idxSale !== -1) state.sales[idxSale] = novaVenda; else state.sales.unshift(novaVenda);
+    } else {
+      state.sales.unshift(novaVenda);
+    }
+    persist(); closeModal(); render();
+    showToast(`${isEdit ? 'Troca atualizada!' : 'Troca registrada!'} ${p.nome} → ${trocaNome}${trocaDinheiro>0?' + '+fmt(trocaDinheiro):''} · Lucro: ${fmt(lucroVenda)} · Margem: ${fmtPct(margemVenda)}`);
+  });
+
+  renderCart();
+  toggleTipo();
+}
+
+// ==========================================
+// DETALHES DA VENDA
+// ==========================================
+function openSaleDetailsModal(id) {
+  const sale = state.sales.find(s => s.id === id);
+  if (!sale) return;
+  const itens = getSaleItens(sale);
+  const numero = getSaleNumero(sale);
+  const isTroca = sale.tipo === 'troca';
+  const d = new Date(sale.dataHora);
+  const dataStr = isNaN(d.getTime()) ? '-' : d.toLocaleDateString('pt-BR');
+  const horaStr = isNaN(d.getTime()) ? '-' : d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const margem = sale.custoTotal > 0 ? (sale.lucro / sale.custoTotal) * 100 : 0;
+  const obs = getSaleObs(sale);
+  const formaPagStr = isTroca
+    ? `Troca${sale.trocaProdutoNome ? ' por ' + escapeHtml(sale.trocaProdutoNome) : ''}${sale.trocaDinheiro>0 ? ' + '+fmt(sale.trocaDinheiro)+' em dinheiro' : ''}`
+    : escapeHtml(sale.formaPagamento || '-');
+
+  const itensRows = itens.map(it => `
+    <tr>
+      <td style="padding:8px 6px;font-size:12px">${escapeHtml(it.produtoNome)}</td>
+      <td style="padding:8px 6px;font-size:12px;text-align:center">${it.qtd}</td>
+      <td style="padding:8px 6px;font-size:12px;text-align:right">${it.precoUnitario != null ? fmt(it.precoUnitario) : '—'}</td>
+      <td style="padding:8px 6px;font-size:12px;text-align:right;font-weight:600">${fmt(it.subtotal != null ? it.subtotal : (it.qtd*it.precoUnitario))}</td>
+    </tr>`).join('');
+
+  openModal(`
+    <h3>Venda #${numero}</h3>
+    <div class="hint-box" style="flex-wrap:wrap;gap:8px 20px;font-size:12px">
+      <div style="min-width:110px"><strong>Data:</strong> ${dataStr}</div>
+      <div style="min-width:90px"><strong>Hora:</strong> ${horaStr}</div>
+      <div style="min-width:140px"><strong>Cliente:</strong> ${escapeHtml(sale.cliente || 'Final')}</div>
+      <div style="flex:1;min-width:160px"><strong>Pagamento:</strong> ${formaPagStr}</div>
+    </div>
+    <div style="overflow-x:auto;margin-bottom:14px;border:1px solid var(--slate-100);border-radius:12px">
+      <table style="width:100%">
+        <thead>
+          <tr>
+            <th style="padding:8px 6px;font-size:10px">Produto</th>
+            <th style="padding:8px 6px;font-size:10px;text-align:center">Qtd</th>
+            <th style="padding:8px 6px;font-size:10px;text-align:right">Preço Unit.</th>
+            <th style="padding:8px 6px;font-size:10px;text-align:right">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>${itensRows}</tbody>
+      </table>
+    </div>
+    <div class="profit-box" style="flex-direction:column;align-items:stretch;gap:6px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between"><span>Total da Venda</span><span class="amt">${fmt(sale.faturamento)}</span></div>
+      <div style="display:flex;justify-content:space-between"><span>Lucro da Venda</span><span class="amt">${fmt(sale.lucro)}</span></div>
+      <div style="display:flex;justify-content:space-between"><span>Margem</span><span class="amt">${fmtPct(margem)}</span></div>
+    </div>
+    ${obs ? `<div class="hint-box"><div><strong>Observações:</strong> ${escapeHtml(obs)}</div></div>` : ''}
+    <div class="modal-actions">
+      <button type="button" class="btn-secondary" style="flex:1" onclick="closeModal(); openSaleModal({editId:${sale.id}})">✎ Editar</button>
+      <button type="button" class="btn-secondary" style="flex:1" onclick="closeModal(); openSaleModal({duplicateFrom:${sale.id}})">⧉ Duplicar</button>
+    </div>
+    <div class="modal-actions" style="margin-top:8px">
+      <button type="button" class="btn-secondary" style="flex:1;background:var(--rose-50);color:var(--rose-700)" onclick="cancelSale(${sale.id})">✕ Cancelar Venda</button>
+      <button type="button" class="btn-secondary" style="flex:1" onclick="closeModal()">Fechar</button>
+    </div>
+  `);
+}
+
+// ==========================================
+// REVISÃO EM LOTE: FORMA DE PAGAMENTO DE VENDAS ANTIGAS
+// ==========================================
+// Muitas vendas antigas foram marcadas automaticamente como "Dinheiro" pela
+// migração de compatibilidade (migrarFormaPagamento), mesmo quando a forma real
+// não era conhecida. Este modal permite revisar e corrigir rapidamente, venda a
+// venda, sem precisar abrir cada uma individualmente em "Editar".
+function openRevisarPagamentosModal(filtro = 'dinheiro') {
+  const todasVendas = [...state.sales].sort((a, b) => new Date(a.dataHora) - new Date(b.dataHora));
+  const qtdMarcadasDinheiro = todasVendas.filter(v => v.formaPagamento === 'Dinheiro').length;
+  const vendas = filtro === 'dinheiro' ? todasVendas.filter(v => v.formaPagamento === 'Dinheiro') : todasVendas;
+
+  const rows = vendas.map(v => {
+    const itens = getSaleItens(v);
+    const nomeLinha = itens.length > 1 ? `${escapeHtml(itens[0].produtoNome)} + ${itens.length - 1} produto(s)` : escapeHtml(itens[0].produtoNome);
+    const botoes = FORMAS_PAGAMENTO_VENDA.map(f =>
+      `<button type="button" class="margin-btn ${v.formaPagamento === f ? 'active' : ''}" onclick="setVendaFormaPagamento(${v.id}, '${f}', '${filtro}')">${f}</button>`
+    ).join('');
+    return `
+      <div style="padding:10px 2px;border-top:1px solid var(--slate-100)">
+        <div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:6px">
+          <div>
+            <p style="margin:0;font-weight:600;font-size:13px;color:var(--slate-900)">${nomeLinha}</p>
+            <p style="margin:2px 0 0;font-size:11px;color:var(--slate-500)">${escapeHtml(v.cliente || 'Cliente Final')} • ${formatDataHora(v.dataHora)}</p>
+          </div>
+          <p style="margin:0;font-weight:700;font-size:13px;white-space:nowrap">${fmt(v.faturamento)}</p>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">${botoes}</div>
+      </div>`;
+  }).join('');
+
+  openModal(`
+    <h3>Revisar Formas de Pagamento</h3>
+    <p style="font-size:12px;color:var(--slate-500);margin:-8px 0 14px">
+      Vendas antigas sem forma de pagamento registrada foram marcadas automaticamente como "Dinheiro".
+      Clique no botão certo em cada venda que você lembrar ter sido PIX ou Cartão.
+    </p>
+    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+      <button type="button" class="margin-btn ${filtro==='dinheiro'?'active':''}" onclick="openRevisarPagamentosModal('dinheiro')">Marcadas como Dinheiro (${qtdMarcadasDinheiro})</button>
+      <button type="button" class="margin-btn ${filtro==='todas'?'active':''}" onclick="openRevisarPagamentosModal('todas')">Todas as vendas (${todasVendas.length})</button>
+    </div>
+    <div style="max-height:340px;overflow-y:auto;border:1px solid var(--slate-100);border-radius:12px;padding:0 14px">
+      ${rows || '<p class="empty-note" style="padding:16px 0">Nenhuma venda para revisar aqui. 🎉</p>'}
+    </div>
+    <div class="modal-actions" style="margin-top:16px">
+      <button type="button" class="btn-secondary" style="flex:1" onclick="closeModal()">Concluir</button>
+    </div>`);
+}
+
+// Atualiza a forma de pagamento de uma venda específica e atualiza o modal em tempo real
+function setVendaFormaPagamento(id, forma, filtro) {
+  const idx = state.sales.findIndex(v => v.id === id);
+  if (idx === -1) return;
+  state.sales[idx] = { ...state.sales[idx], formaPagamento: forma };
+  persist();
+  render();
+  openRevisarPagamentosModal(filtro);
+  showToast(`Marcado como "${forma}".`);
+}
+
+// ==========================================
+// BACKUP: EXPORTAR / IMPORTAR
+// ==========================================
+function openBackupModal() {
+  openModal(`
+        <h3>Backup de Dados</h3>
+        <p style="font-size:12px;color:var(--slate-500);margin:-8px 0 16px">
+          Seus dados ficam salvos apenas neste navegador. Exporte um arquivo de backup regularmente,
+          ou para levar seus dados para outro computador/navegador.
+        </p>
+
+        <div class="hint-box" style="margin-bottom:16px">
+          📦 Você tem <strong>${state.products.length}</strong> produto(s), <strong>${state.purchases.length}</strong> compra(s),
+          <strong>${state.sales.length}</strong> venda(s), <strong>${state.deliveries.length}</strong> entrega(s)
+          e <strong>${state.expenses.length}</strong> despesa(s) registrados agora.
+        </div>
+
+        <button class="btn-primary" style="width:100%;margin-bottom:10px" onclick="exportBackup()">⬇ Baixar backup (.json)</button>
+
+        <label class="btn-secondary" style="width:100%;display:block;text-align:center;cursor:pointer;box-sizing:border-box">
+          ⬆ Importar backup (.json)
+          <input type="file" accept="application/json,.json" id="importFile" style="display:none" />
+        </label>
+
+        <p id="importWarn" style="font-size:11px;color:var(--rose-600);font-weight:600;text-align:center;margin:10px 0 0"></p>
+
+        <div class="modal-actions" style="margin-top:16px">
+          <button type="button" class="btn-secondary" style="flex:1" onclick="closeModal()">Fechar</button>
+        </div>`);
+
+  $('importFile').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const parsed = JSON.parse(evt.target.result);
+        if (!parsed.products || !parsed.purchases || !parsed.sales) {
+          throw new Error('formato inválido');
+        }
+        const confirmMsg = `Isso vai SUBSTITUIR os dados atuais (${state.products.length} produtos, ${state.purchases.length} compras, ${state.sales.length} vendas) pelos do arquivo (${parsed.products.length} produtos, ${parsed.purchases.length} compras, ${parsed.sales.length} vendas). Continuar?`;
+        if (!confirm(confirmMsg)) return;
+        state = migrarNovasListas(migrarFormaPagamento(migrarDatas(parsed)));
+        persist();
+        closeModal();
+        render();
+        showToast('Backup importado com sucesso!');
+      } catch (err) {
+        $('importWarn').textContent = 'Arquivo inválido. Selecione um backup .json gerado por este app.';
+      }
+    };
+    reader.readAsText(file);
+  });
+}
+
+function exportBackup() {
+  const dataStr = JSON.stringify(state, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `revendapro-backup-${dateStr}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Backup baixado com sucesso.');
+}
+
+render();
+</script>
+</body>
+</html>
